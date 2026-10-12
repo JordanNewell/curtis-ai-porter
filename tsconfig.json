@@ -1,0 +1,15 @@
+{
+	"compilerOptions": {
+		"baseUrl": ".",
+		"module": "ESNext",
+		"target": "ES2022",
+		"strict": true,
+		"moduleResolution": "bundler",
+		"useDefineForClassFields": false,
+		"isolatedModules": true,
+		"lib": ["DOM", "DOM.Iterable", "ES2022"],
+		"types": ["node"]
+	},
+	"include": ["src/**/*.ts", "cli/**/*.ts", "test/**/*.ts"],
+	"exclude": ["node_modules", "dist", "dist-test", "test/curtis-contract-live.test.ts"]
+}

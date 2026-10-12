@@ -1,0 +1,414 @@
+/* Curtis Porter — Obsidian plugin styles.
+   Brand green #00f320 rides on top of Obsidian theme variables so the view
+   works in light and dark themes. */
+
+:root {
+	--porter-green: #00f320;
+	--porter-green-ink: #021507;
+}
+
+/* ── Ribbon / tab icon: keep the mark brand-green in both themes ── */
+.curtis-porter-ribbon {
+	color: var(--porter-green) !important;
+}
+.workspace-tab-header[data-type="curtis-porter-view"] .workspace-tab-header-inner-icon {
+	color: var(--porter-green);
+}
+
+/* ── View layout ── */
+.curtis-porter-view {
+	padding: 16px 18px 32px;
+	font-size: var(--font-ui-small);
+}
+/* ── View layout: full-height column, hero centers in the free space ── */
+.curtis-porter-view {
+	padding: 16px 18px 20px;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	box-sizing: border-box;
+	overflow-y: auto;
+}
+
+/* ── Empty-state hero (mirrors Curtis chat's empty state) ── */
+.curtis-porter-view .porter-hero {
+	flex: 1 1 auto;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	padding-block: 10px;
+	text-align: center;
+}
+/* Compact variant — results on screen or a write to confirm: the hero steps aside. */
+.curtis-porter-view .porter-hero.porter-compact,
+.curtis-porter-view.porter-has-chats .porter-hero {
+	flex: 0 0 auto;
+	padding-block: 2px 10px;
+	gap: 5px;
+}
+.curtis-porter-view .porter-hero.porter-compact .porter-hero-disc,
+.curtis-porter-view.porter-has-chats .porter-hero-disc {
+	inline-size: 44px;
+	block-size: 44px;
+}
+.curtis-porter-view .porter-hero.porter-compact .porter-hero-disc svg,
+.curtis-porter-view.porter-has-chats .porter-hero-disc svg {
+	inline-size: 22px;
+	block-size: 22px;
+}
+.curtis-porter-view.porter-has-chats .porter-hero-tagline,
+.curtis-porter-view .porter-hero.porter-compact .porter-hero-tagline {
+	display: none;
+}
+.curtis-porter-view .porter-hero-disc {
+	inline-size: 60px;
+	block-size: 60px;
+	border-radius: 50%;
+	background: var(--background-modifier-hover);
+	border: 1px solid var(--background-modifier-border-hover, var(--background-modifier-border));
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.curtis-porter-view .porter-hero-disc svg {
+	inline-size: 28px;
+	block-size: 28px;
+	color: var(--porter-green);
+}
+.curtis-porter-view .porter-hero-title {
+	font-size: var(--font-ui-medium);
+	font-weight: 700;
+	color: var(--text-normal);
+}
+.curtis-porter-view .porter-hero-tagline {
+	color: var(--text-muted);
+	font-size: var(--font-ui-small);
+	max-inline-size: 34ch;
+}
+
+/* ── Write confirmation ── */
+.curtis-porter-view .porter-success {
+	flex: 1 1 auto;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+	text-align: center;
+	padding-block: 20px;
+}
+.curtis-porter-view .porter-success-disc {
+	inline-size: 58px;
+	block-size: 58px;
+	border-radius: 50%;
+	background: var(--porter-green);
+	color: var(--porter-green-ink);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.curtis-porter-view .porter-success-disc svg {
+	inline-size: 28px;
+	block-size: 28px;
+}
+.curtis-porter-view .porter-success-title {
+	font-size: var(--font-ui-medium);
+	font-weight: 700;
+	color: var(--text-normal);
+}
+.curtis-porter-view .porter-success-meta {
+	color: var(--text-muted);
+	font-size: var(--font-ui-small);
+	max-inline-size: 36ch;
+}
+.curtis-porter-view .porter-success-note {
+	color: var(--text-faint);
+	font-size: 11.5px;
+}
+.curtis-porter-view .porter-success-actions {
+	display: flex;
+	gap: 8px;
+	flex-wrap: wrap;
+	justify-content: center;
+	margin-block-start: 6px;
+}
+
+/* ── Trust footer ── */
+.curtis-porter-view .porter-footer {
+	margin-block-start: auto;
+	padding-block-start: 12px;
+	text-align: center;
+	color: var(--text-faint);
+	font-size: 11px;
+	font-family: var(--font-monospace);
+}
+.curtis-porter-view .porter-footer-folder {
+	color: var(--text-muted);
+}
+.curtis-porter-view .porter-footer-link {
+	background: none;
+	border: none;
+	box-shadow: none;
+	color: var(--text-muted);
+	cursor: pointer;
+	font: inherit;
+	padding: 0;
+	text-decoration: underline;
+	text-underline-offset: 3px;
+}
+.curtis-porter-view .porter-footer-link:hover {
+	color: var(--text-normal);
+}
+
+/* ── Drop zone ── */
+.curtis-porter-view .porter-drop {
+	border: 2px dashed var(--background-modifier-border);
+	border-radius: 12px;
+	padding: 18px 16px;
+	text-align: center;
+	cursor: pointer;
+	background: var(--background-secondary);
+	transition: border-color 0.15s, background 0.15s;
+}
+.curtis-porter-view .porter-drop:hover,
+.curtis-porter-view .porter-drop.porter-drag {
+	border-color: var(--porter-green);
+	background: var(--background-secondary-alt);
+}
+.curtis-porter-view .porter-drop-big {
+	font-weight: 600;
+	color: var(--text-normal);
+}
+.curtis-porter-view .porter-drop-sub {
+	color: var(--text-faint);
+	font-size: 11.5px;
+	margin-block-start: 4px;
+}
+
+/* ── Paste box (always open — it's a first-class input, not a fallback) ── */
+.curtis-porter-view .porter-paste {
+	margin-block-start: 12px;
+}
+.curtis-porter-view .porter-paste-head {
+	font-weight: 600;
+	color: var(--text-normal);
+	margin-block-end: 3px;
+}
+.curtis-porter-view .porter-hint {
+	color: var(--text-faint);
+	font-size: 11.5px;
+	margin-block-end: 6px;
+}
+.curtis-porter-view .porter-paste-text {
+	inline-size: 100%;
+	min-block-size: 96px;
+	resize: vertical;
+	font-family: var(--font-monospace);
+	font-size: 12px;
+}
+.curtis-porter-view .porter-row-end {
+	display: flex;
+	justify-content: flex-end;
+	margin-block-start: 8px;
+}
+.curtis-porter-view .porter-primary {
+	background: var(--porter-green);
+	color: var(--porter-green-ink);
+	font-weight: 600;
+	border: none;
+	cursor: pointer;
+	border-radius: 8px;
+	padding: 7px 16px;
+}
+.curtis-porter-view .porter-primary:hover {
+	filter: brightness(1.08);
+}
+.curtis-porter-view .porter-ghost {
+	background: var(--background-secondary);
+	color: var(--text-normal);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 8px;
+	cursor: pointer;
+	padding: 7px 14px;
+}
+.curtis-porter-view .porter-ghost:hover {
+	border-color: var(--porter-green);
+}
+
+/* ── Status / sources ── */
+.curtis-porter-view .porter-status {
+	color: var(--text-warning, #d9a05a);
+	font-size: 12px;
+	min-block-size: 2px;
+	margin-block-start: 10px;
+}
+.curtis-porter-view .porter-sources {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin-block-start: 10px;
+}
+.curtis-porter-view .porter-chip {
+	font-family: var(--font-monospace);
+	font-size: 10.5px;
+	color: var(--text-muted);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 99px;
+	padding: 3px 10px;
+}
+.curtis-porter-view .porter-chip-name {
+	color: var(--text-normal);
+	font-weight: 600;
+}
+.curtis-porter-view .porter-chip-err {
+	color: var(--text-error);
+}
+
+/* ── Conversation list: takes the remaining height, scrolls internally ── */
+.curtis-porter-view .porter-list-outer {
+	display: flex;
+	flex-direction: column;
+	min-block-size: 0;
+}
+.curtis-porter-view.porter-has-chats .porter-list-outer {
+	flex: 1 1 auto;
+}
+.curtis-porter-view.porter-has-chats .porter-list {
+	flex: 1 1 auto;
+	overflow-y: auto;
+	min-block-size: 80px;
+}
+.curtis-porter-view .porter-list-count {
+	color: var(--text-muted);
+	font-size: 12px;
+	padding: 8px 12px;
+}
+.curtis-porter-view .porter-row-between.porter-list-count,
+.curtis-porter-view .porter-row-between {
+	background: var(--background-secondary);
+	border: 1px solid var(--background-modifier-border);
+	border-block-end: none;
+	border-radius: 10px 10px 0 0;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	padding: 6px 12px;
+}
+.curtis-porter-view .porter-filter {
+	background: var(--background-primary);
+	color: var(--text-normal);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 6px;
+	font-size: 11.5px;
+	padding: 3px 8px;
+	inline-size: 140px;
+}
+.curtis-porter-view .porter-already {
+	margin-inline-start: 8px;
+	color: var(--porter-green);
+	border: 1px solid var(--porter-green);
+	opacity: 0.75;
+	border-radius: 99px;
+	font-size: 10px;
+	padding: 0 7px;
+}
+.curtis-porter-view .porter-list {
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 0 0 10px 10px;
+	overflow: hidden;
+}
+.curtis-porter-view .porter-row {
+	display: grid;
+	grid-template-columns: 24px 1fr;
+	gap: 10px;
+	align-items: center;
+	padding: 8px 12px;
+	border-block-end: 1px solid var(--background-modifier-border);
+}
+.curtis-porter-view .porter-row:last-child {
+	border-block-end: none;
+}
+.curtis-porter-view .porter-row-title {
+	font-weight: 550;
+	overflow-wrap: anywhere;
+	color: var(--text-normal);
+}
+.curtis-porter-view .porter-row-meta {
+	color: var(--text-faint);
+	font-size: 11px;
+}
+.curtis-porter-view .porter-actions {
+	display: flex;
+	gap: 8px;
+	flex-wrap: wrap;
+	margin-block-start: 14px;
+}
+
+/* ── Why-strip: the case for the porter, answered on sight ── */
+.curtis-porter-view .porter-why {
+	margin-block-start: 14px;
+	padding-block-start: 12px;
+	border-block-start: 1px solid var(--background-modifier-border);
+}
+.curtis-porter-view .porter-why-row {
+	color: var(--text-muted);
+	font-size: 11.5px;
+	padding-block: 2.5px;
+}
+.curtis-porter-view .porter-why-lead {
+	color: var(--text-normal);
+	font-weight: 600;
+}
+/* With results on screen the pitch gets out of the way of the list. */
+.curtis-porter-view.porter-has-chats .porter-why {
+	display: none;
+}
+
+.porter-hidden {
+	display: none !important;
+}
+
+/* ── Settings About footer (mirrors the Curtis AI Chat About row) ── */
+.setting-item.porter-about {
+	display: block;
+}
+.setting-item.porter-about .porter-about-title {
+	display: flex;
+	align-items: center;
+	gap: var(--size-2-2);
+	font-size: var(--font-ui-medium);
+	color: var(--text-normal);
+}
+.setting-item.porter-about .porter-about-mark {
+	flex-shrink: 0;
+}
+.setting-item.porter-about .porter-about-mark .svg-icon {
+	/* The mark is the master logo art (see icons.ts) — sized for the raster's
+	 * arrow detail; it carries its own brand ink, no theme repaint applies. */
+	width: 20px;
+	height: 20px;
+}
+.setting-item.porter-about .porter-about-desc {
+	margin: var(--size-2-2) 0 0;
+	color: var(--text-muted);
+	font-size: var(--font-ui-smallest);
+}
+/* Newell NMOJI brand button — pinned to the footer's bottom-right corner;
+ * the wrap reserves right padding so text never runs under the mark. */
+.setting-item.porter-about .porter-about-wrap {
+	position: relative;
+	padding-right: 56px;
+}
+.setting-item.porter-about .porter-about-nmoji {
+	position: absolute;
+	right: 0;
+	bottom: 0;
+}
+.setting-item.porter-about .porter-about-nmoji img {
+	display: block;
+	width: 44px;
+	height: 44px;
+}

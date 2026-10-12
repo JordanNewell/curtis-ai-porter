@@ -1,0 +1,9 @@
+{
+  "root": "Audit",
+  "messengerRoot": "Messenger",
+  "inboxAddress": "audit",
+  "pollSeconds": 3,
+  "retentionDays": 0,
+  "debug": true,
+  "cursors": {}
+}

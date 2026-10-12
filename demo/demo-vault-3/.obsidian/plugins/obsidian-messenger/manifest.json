@@ -1,0 +1,9 @@
+{
+  "id": "obsidian-messenger",
+  "name": "Obsidian Messenger",
+  "version": "1.0.0",
+  "minAppVersion": "1.4.0",
+  "description": "A vault-local markdown message bus: give plugins, agents, and humans addresses and let them talk through inbox notes.",
+  "author": "jrnew",
+  "isDesktopOnly": false
+}

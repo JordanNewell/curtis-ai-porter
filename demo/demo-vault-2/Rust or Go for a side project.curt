@@ -1,0 +1,38 @@
+{
+	"curt": "curtis-conversation",
+	"version": 1,
+	"conversation": {
+		"id": "conv_1791393355673_s9i20doe8",
+		"title": "Rust or Go for a side project",
+		"messages": [
+			{
+				"id": "msg_1791393355673_95cwyr",
+				"role": "user",
+				"content": "I keep going back and forth — Rust or Go for a small API side project?",
+				"timestamp": 1791393355673
+			},
+			{
+				"id": "msg_1791393355673_3ijpah",
+				"role": "assistant",
+				"content": "For a small API with a shipping deadline, Go: you'll finish. The standard library covers HTTP, deploys are a single binary, and the borrow checker never interrupts you at 11pm.",
+				"timestamp": 1791393355673
+			},
+			{
+				"id": "msg_1791393355673_qj2mfp",
+				"role": "user",
+				"content": "When would Rust be the right call?",
+				"timestamp": 1791393355673
+			},
+			{
+				"id": "msg_1791393355673_q2ogx1",
+				"role": "assistant",
+				"content": "When correctness under concurrency is the product — a parser, a proxy, anything where a data race is a security bug. If the fun *is* the engineering, Rust pays you back. If the fun is the finished thing, Go.",
+				"timestamp": 1791393355673
+			}
+		],
+		"createdAt": 1791393355673,
+		"updatedAt": 1791393355673,
+		"provider": "",
+		"model": ""
+	}
+}

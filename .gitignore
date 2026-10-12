@@ -1,0 +1,17 @@
+node_modules/
+dist/
+dist-test/
+*.log
+.DS_Store
+
+# plugin build outputs (npm run build; released on GitHub releases)
+main.js
+main.js.map
+
+# demo artifacts (regenerable)
+demo/_shots/
+demo/demo-vault-2/.obsidian/plugins/
+
+# Machine-local demo vault state — gitleaks-flagged, never commit
+demo/**/chromium-profile/
+demo/**/plugins/curtis/data.json

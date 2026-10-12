@@ -1,0 +1,12 @@
+---
+curtis: task
+status: "error"
+started: "2026-10-11T00:01:01.404Z"
+provider: "Ollama local (qwen2.5:7b)"
+model: "qwen2.5:7b-instruct"
+---
+
+# What are the current top stories on Hacker News?
+
+- Status: error
+- Artifacts: [[Curtis/Runs/2026-10-10-23-45-what-are-the-current-top-stories-on-hack/Findings]], [[Curtis/Runs/2026-10-10-23-45-what-are-the-current-top-stories-on-hack/Replay]], Sources/

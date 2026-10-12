@@ -1,0 +1,8 @@
+{
+  "address": "carol",
+  "root": "Messenger",
+  "pollSeconds": 3,
+  "retentionDays": 30,
+  "debug": true,
+  "cursors": {}
+}

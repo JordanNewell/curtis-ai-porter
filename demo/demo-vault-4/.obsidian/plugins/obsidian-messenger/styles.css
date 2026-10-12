@@ -1,0 +1,8 @@
+/* Obsidian Messenger */
+
+.messenger-body {
+  width: 100%;
+  min-height: 8em;
+  resize: vertical;
+  margin-bottom: 0.75em;
+}

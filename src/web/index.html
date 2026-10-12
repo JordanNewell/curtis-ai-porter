@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Curtis AI Porter — carry your AI chats anywhere</title>
+<meta name="description" content="Port ChatGPT, Claude, DeepSeek and other AI chat history into Curtis .curt files and Obsidian-ready markdown. Local-first: nothing leaves your machine." />
+<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAUCSURBVFhHvVdtUFRVGL4VBEQr5b/6kWU11kxGM6FBgAHuLprTD6ZMyrJBGosski9hd4F2QFCkoakZc8TpR2hk6q8mkcBppj+JMmapLB/qIgMstEvCyH6wrMvTvO9yL/tx97qSw5l5Zs4995z3POe8n0dQ6TTXVJXZ/6p06qUF7alXXxdUOs30MuNGLKvKjhjxlRrE6LIQXZHBoD6NBc9ThHEjVHq1XSA2PKDXKOKhiiwIRckM+n66bjMSv9zGoD6Nif9pbvD6EFRlE4GbigQS9BrE69ZD2PUKHjVokdtShZZzp3BpuB/WKRvs9lsM25QNl4cHcPR8G949Uo3lhmwIu9byWpIRLDciAgkGLaJK0xkfH29Ar8UMqc3OYnbGhRmXg0F9GhNb/9ggCk7sR3RZOh4oTWdZwfIVCdACoTgFK2py0G76wyfV44HDMS3B6bBjxulgUN//H82l1tnbhaf2vMmyQkiEIyBu/kLDVpitwyxITjg8t+Fy2hnUF0k6/ecCGJoYRWLj+xCKgkjIESB90ZU/UZPj23wOkp5vu938fXGoF8bTh7GpuQRJTdsZm5qLUd12CBdu9PAcr9straPvIdso3wSpRJEAGQ0R6OjxXbskxOuFdWoCHx6rQ1x5JoTP10AofpX1S6A+jcWWZyCvdQ/GJ62Ad25hPYAO01nE7c7Aw7r18gTo9GTtO37axwvoKsXN+yxmPL8vF0JhEuIr5gXIgP7RnFX1W2AavS6RIDshI325KQ9R4i0EEyDffcSgRb/FjDmPB3bHNDxuN/6ZsuG5vblMLsSQZMA2VJSMZ+vf5rViG50Yw+PGN/gGZQmQkeR+X8U681n5NPfzf6zjU0WyeSCJFKR98xHO9J3Hb/3dyDzwKaJK0xbmhRJIxpFzp5gtEfB6PPhrqJcZK127HBL0WkSXrYNQsBrCJ4mSvYT1AorjKr0Gl4f7MTfr83dqX7Q1s3GFjWay0OL+klSsadqO6tOHkX+sng1Puno5AjH6LKysewu2SRtHNQos5NuvN5cw+9BNwiOqJA3qbz+Dw+WQ9H/iQidi2QPU8gQoo1FSYYul8Dof4cjH6eqCNwkHukUKYj///TtvbHfcgos8wAtkHNiJ+0pSl4jApbskQCqglEpZLVAFxYtSgeZgIZwup6SCk3+eQVy5ggq4mLjHRrj2q3wY27/jwKbSqZWNUM4NKRhdHDIhdpFuGCW54YusFkU3FAlQwXEvA1Hq1zvQ0dvFwYhsQDEQiaF4YD4UE4mAUFyUHBEJMRQ/U7cZ45MLoXhkwoLHlEKxmIyo+qHmn4yoGlq1d8udkxGVb4VJnAd6Rq/dXTISBUSXpqPT1MUkFtLxHKfYvNZaDihiOiZhBDEdx+x+DR/8UIMxmXRMMn2eECYd8/XNFyQranMwaB0JKEioyKBvKjqq25rZRelEhA2HimD45SC6B6/IFyQTFqyMpCCRdFicgtX7t2LQNiJ5hWSYfiWZ02lnBIyFlGQWvNS4LbQuDEfAn8STtTn41XR2XrhCUeoMKkpnfYTI+unkIZvfiYBIgtRBNlFwvAF9Y6FluT/8y/KB8RvYebIRD5atC/X/SAkwiYCHSTbeaanmx8eVkauwTto4dBOo3zNyFa3d7XjvqBHLKzf8/4dJMPyfZnQiSt+UPwjUpxiyyKfZIh6nBjVidVmI0WUyqE9jwfMU4fc4NauqtDeJzZLCt6f5P78gVDQqOhUDAAAAAElFTkSuQmCC" />
+<style>
+	/* Curtis Records Office tokens — curtis-ai-tech tokens.json v1.0.0 (frozen B0).
+	   Paper first; green-700 is the only accent; retired: #00FF41, #1AFF72. */
+	:root {
+		--bg: #F5F5F3;
+		--panel: #FFFFFF;
+		--panel-2: #F0F2EC;
+		--border: #DDE0D8;
+		--text: #1A1A18;
+		--muted: #6B6B66;
+		--accent: #0E7A45;
+		--accent-ink: #F5F5F3;
+		/* functional state colors, drawn from the token set (stamp-red for both
+		   warn and err — the status line only ever reports read failures) */
+		--ok: #0E7A45;
+		--warn: #BE3A2B;
+		--err: #BE3A2B;
+		--serif: "Fraunces", Georgia, "Times New Roman", serif;
+		--mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+	}
+	* { box-sizing: border-box; }
+	html, body { margin: 0; padding: 0; }
+	body {
+		background: var(--bg);
+		color: var(--text);
+		font: 15px/1.55 "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+		min-height: 100vh;
+	}
+	.wrap { max-width: 860px; margin-inline: auto; padding-inline: 20px; }
+	header {
+		display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
+		padding-block: 28px 20px;
+	}
+	header h1 { font-family: var(--serif); font-size: 24px; margin: 0; font-weight: 600; letter-spacing: -0.2px; display: flex; align-items: center; gap: 10px; }
+	header h1 .logo { width: 26px; height: 26px; }
+	header h1 .mark { color: var(--accent); }
+	.badge {
+		font-family: var(--mono); font-size: 11px; color: var(--muted);
+		border: 1px solid var(--border); border-radius: 99px; padding: 3px 10px;
+	}
+	.tagline { color: var(--muted); margin: -12px 0 24px; }
+	.tagline b { color: var(--text); }
+	a { color: var(--accent); text-underline-offset: 3px; }
+
+	#dropzone {
+		border: 2px dashed var(--border);
+		border-radius: 12px;
+		padding: 44px 24px;
+		text-align: center;
+		cursor: pointer;
+		transition: border-color .15s, background .15s;
+		background: var(--panel);
+	}
+	#dropzone.drag { border-color: var(--accent); background: var(--panel-2); }
+	#dropzone .big { font-size: 17px; margin-block: 0 6px; }
+	#dropzone .sub { color: var(--muted); font-size: 13px; margin: 0; }
+	#dropzone kbd { font-family: var(--mono); font-size: 12px; border: 1px solid var(--border); border-radius: 5px; padding: 1px 6px; background: var(--panel-2); }
+
+	.row-between { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+	.toggle {
+		background: none; border: none; color: var(--muted); font: inherit; font-size: 13px;
+		cursor: pointer; padding: 0; margin-block: 14px 0; text-decoration: underline; text-underline-offset: 3px;
+	}
+	.toggle:hover { color: var(--text); }
+	#pastebox { margin-top: 14px; }
+	.paste-head { font-weight: 600; margin-block-end: 3px; }
+	#pastebox textarea {
+		width: 100%; min-height: 130px; resize: vertical;
+		background: var(--panel); color: var(--text);
+		border: 1px solid var(--border); border-radius: 10px; padding: 14px;
+		font: 13px/1.5 var(--mono);
+	}
+	#pastebox .hint { color: var(--muted); font-size: 12.5px; margin: 6px 2px 10px; }
+	button.primary {
+		background: var(--accent); color: var(--accent-ink); border: none; border-radius: 8px;
+		font: inherit; font-weight: 600; padding: 9px 18px; cursor: pointer;
+	}
+	button.primary:hover { filter: brightness(1.08); }
+	button.ghost {
+		background: var(--panel-2); color: var(--text); border: 1px solid var(--border);
+		border-radius: 8px; font: inherit; font-size: 13.5px; padding: 8px 14px; cursor: pointer;
+	}
+	button.ghost:hover { border-color: var(--accent); }
+	button.mini {
+		background: none; color: var(--muted); border: 1px solid var(--border); border-radius: 6px;
+		font: 12px var(--mono); padding: 3px 8px; cursor: pointer;
+	}
+	button.mini:hover { color: var(--text); border-color: var(--accent); }
+
+	#status { margin-top: 14px; font-size: 13.5px; color: var(--err); }
+	#results { margin-top: 8px; }
+	.source-chip {
+		display: inline-flex; gap: 8px; align-items: center;
+		font-family: var(--mono); font-size: 11.5px; color: var(--muted);
+		border: 1px solid var(--border); border-radius: 99px; padding: 3px 10px; margin: 4px 6px 0 0;
+	}
+	.source-chip b { color: var(--text); font-weight: 600; }
+	.source-chip.err { color: var(--err); }
+
+	.chatlist { margin-top: 18px; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+	.chatlist .head, .chat-item {
+		display: grid; grid-template-columns: 26px 1fr auto; gap: 12px; align-items: center;
+		padding: 10px 14px;
+	}
+	.chatlist .head {
+		background: var(--panel-2); font-family: var(--mono); font-size: 12px; color: var(--muted);
+		border-block-end: 1px solid var(--border);
+	}
+	.chat-item { background: var(--panel); border-block-end: 1px solid var(--border); }
+	.chat-item:nth-child(even) { background: var(--bg); }
+	.chat-item:last-child { border-block-end: none; }
+	.chat-item .meta { color: var(--muted); font-size: 12.5px; }
+	.chat-item .title { font-weight: 550; overflow-wrap: anywhere; }
+	.chat-item input[type=checkbox] { accent-color: var(--accent); width: 15px; height: 15px; }
+	.chat-item .actions { display: flex; gap: 6px; }
+
+	.actions-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+	#exportBar { align-items: center; margin-top: 10px; }
+	#exportBar label { color: var(--muted); font-size: 13.5px; }
+	select#exportTarget {
+		background: var(--panel-2); color: var(--text); border: 1px solid var(--border);
+		border-radius: 8px; font: inherit; font-size: 13.5px; padding: 8px 10px; cursor: pointer;
+	}
+	select#exportTarget:hover { border-color: var(--accent); }
+	#explainer { margin-block: 40px 0; border-block-start: 1px solid var(--border); padding-block: 26px 40px; }
+	#explainer h2 { font-family: var(--serif); font-size: 16px; margin: 18px 0 6px; }
+	#explainer p, #explainer li { color: var(--muted); font-size: 13.5px; margin: 4px 0; }
+	#explainer p b { color: var(--text); }
+	#explainer code { font-family: var(--mono); font-size: 12px; color: var(--text); background: var(--panel-2); border-radius: 4px; padding: 1px 6px; }
+	footer { color: var(--muted); font-size: 12px; padding-block: 0 40px; }
+	footer a { color: var(--muted); }
+	.hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+	<header>
+		<h1><img class="logo" src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20256%20256'%3E%3Crect%20width='256'%20height='256'%20rx='56'%20fill='%230E7A45'/%3E%3Cpath%20d='M%20200.1%2077.5%20A%2088%2088%200%201%200%20200.1%20178.5'%20fill='none'%20stroke='%23F5F5F3'%20stroke-width='34'%20stroke-linecap='round'/%3E%3Ccircle%20cx='190'%20cy='128'%20r='20'%20fill='%23F5F5F3'/%3E%3C/svg%3E" alt="" />Curtis AI Porter<span class="mark">.</span></h1>
+		<span class="badge">local-first · nothing leaves this machine</span>
+	</header>
+	<p class="tagline">Drop a ChatGPT or Claude export (or any chat transcript) and get <b>.curt</b> files plus Obsidian-ready markdown. Works offline — this page is the whole app.</p>
+
+	<div id="dropzone" role="button" tabindex="0" aria-label="Choose or drop files">
+		<p class="big"><b>Drop files here</b> or click to choose</p>
+		<p class="sub">ChatGPT · Claude · Grok · Gemini Takeout · .zip · conversations.json · .curt · Curtis markdown · any labeled transcript (中文也认)</p>
+		<input type="file" id="picker" class="hidden" multiple accept=".zip,.json,.curt,.md,.txt" />
+	</div>
+
+	<div id="pastebox">
+		<div class="paste-head">Paste a transcript</div>
+		<div class="hint">DeepSeek, Kimi, 豆包, MiniMax — any app without an export button. Label the speakers (You:/AI:, 我:/AI:, ## 用户/助手); both sides must be found.</div>
+		<textarea id="pasteText" placeholder="# Weekend planning
+
+You: Two days in Lisbon with kids?
+
+AI: Keep it to one neighborhood a day…"></textarea>
+		<div class="row-between">
+			<span></span>
+			<button class="primary" id="pasteConvert">Convert pasted transcript</button>
+		</div>
+	</div>
+
+	<div id="status" role="status"></div>
+	<div id="sources"></div>
+	<div id="results" class="hidden">
+		<div class="chatlist">
+			<div class="head">
+				<span></span>
+				<span id="listLabel"></span>
+				<span></span>
+			</div>
+			<div id="chatItems"></div>
+		</div>
+		<div class="actions-bar">
+			<button class="primary" id="dlCurt">Download .curt (zip)</button>
+			<button class="ghost" id="dlMd">Download vault markdown (zip)</button>
+			<button class="ghost" id="dlBoth">Download both (one zip)</button>
+			<button class="ghost" id="clear">Clear</button>
+		</div>
+		<div class="actions-bar" id="exportBar">
+			<label for="exportTarget" id="exportLabel">Export for:</label>
+			<select id="exportTarget"></select>
+			<button class="ghost" id="dlExport">Download export</button>
+		</div>
+	</div>
+
+	<div id="explainer">
+		<h2>Where do the files go?</h2>
+		<p><b>Obsidian + <a href="https://jordannewell.github.io/curtis-ai-chat/">Curtis AI Chat</a>:</b> drop the markdown files into your vault's <code>AI/Conversations/</code> folder — they're chats now, searchable and continuable with any provider. Or drop a <code>.curt</code> file anywhere in the vault and double-click it.</p>
+		<p><b>Just Obsidian:</b> the markdown files are plain notes — put them in any folder and they read, link, and search like any other note.</p>
+		<p><b>Neither:</b> keep the <code>.curt</code> files. One file = one conversation, portable JSON you can back up, share, and re-import later.</p>
+	</div>
+
+	<footer>
+		<p>Curtis AI Porter v1.0.0 · BUSL-1.1 · part of <a href="https://jordannewell.github.io/curtis-ai-chat/">Curtis AI Chat</a> — polyglot AI chat for Obsidian. Runs entirely in this page — no uploads, no accounts, no telemetry.</p>
+	</footer>
+</div>
+<!--PORTER_APP_JS-->
+</body>
+</html>

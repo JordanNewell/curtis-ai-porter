@@ -1,0 +1,10 @@
+{
+	"id": "curtis-ai-porter",
+	"name": "Curtis AI Porter",
+	"version": "1.0.0",
+	"minAppVersion": "1.7.2",
+	"description": "Port chat history from ChatGPT, Claude, DeepSeek or any transcript into .curt files and vault-ready markdown. Standalone — works with or without Curtis AI Chat. Local-first, free, MIT.",
+	"author": "Jordan Newell",
+	"authorUrl": "https://github.com/jordannewell",
+	"isDesktopOnly": false
+}

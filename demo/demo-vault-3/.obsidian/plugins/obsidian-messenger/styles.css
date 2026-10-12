@@ -1,0 +1,1195 @@
+/* Obsidian Messenger */
+
+/* Compose modal */
+.messenger-body {
+  width: 100%;
+  min-height: 8em;
+  resize: vertical;
+  margin-bottom: 0.75em;
+}
+
+/* Welcome (onboarding) modal */
+.messenger-onboard-lede {
+  margin-bottom: 1em;
+  opacity: 0.9;
+}
+
+.messenger-onboard-hint {
+  min-height: 1.4em;
+  margin: -0.25em 0 0.75em;
+  font-size: 0.85em;
+  opacity: 0.75;
+}
+
+.messenger-onboard-hint.is-warn {
+  opacity: 1;
+  color: var(--text-warning);
+}
+
+/* Clickable notification popup */
+.messenger-notice {
+  cursor: pointer;
+}
+
+.messenger-notice-title {
+  font-weight: 600;
+}
+
+.messenger-notice-preview {
+  opacity: 0.85;
+  font-size: 0.9em;
+  max-width: 34ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Chat view shell */
+.messenger-chat {
+  height: 100%;
+  padding: 0;
+  overflow: hidden;
+}
+
+/* In a popped-out window, drop the tab chrome — feel like a standalone app */
+body.is-popout-window
+  .workspace-leaf-content[data-type="messenger-chat"]
+  .view-header {
+  display: none;
+}
+
+body.is-popout-window
+  .workspace-leaf-content[data-type="messenger-chat"]
+  .view-content {
+  height: 100%;
+}
+
+/* Conversation header gets a calm, elevated surface */
+.messenger-chat-head {
+  background: var(--background-primary);
+}
+
+.messenger-conv {
+  transition: background 100ms ease;
+}
+
+/* Unread dot on the ribbon icon */
+.clickable-icon.messenger-ribbon-dot {
+  position: relative;
+}
+
+.clickable-icon.messenger-ribbon-dot::after {
+  content: "";
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-error);
+  border: 1.5px solid var(--ribbon-background, var(--background-primary));
+}
+
+/* Avatars */
+.messenger-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 0.85em;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  user-select: none;
+}
+
+.messenger-avatar-sm {
+  width: 26px;
+  height: 26px;
+  font-size: 0.62em;
+  align-self: flex-end;
+  margin-bottom: 3px;
+}
+
+/* Conversation list */
+.messenger-list {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.messenger-list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.messenger-list-title {
+  font-weight: 600;
+  font-size: 1.15em;
+}
+
+.messenger-list-body {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.messenger-conv {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.messenger-conv:hover {
+  background: var(--background-modifier-hover);
+}
+
+.messenger-conv-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.messenger-conv-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.messenger-conv-name {
+  font-weight: 600;
+}
+
+.messenger-conv-time {
+  flex-shrink: 0;
+  color: var(--text-faint);
+  font-size: 0.78em;
+}
+
+.messenger-conv-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.messenger-conv-preview {
+  color: var(--text-muted);
+  font-size: 0.88em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.messenger-unread {
+  flex-shrink: 0;
+  min-width: 20px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+  font-size: 0.72em;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* Conversation */
+.messenger-conversation {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.messenger-chat-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.messenger-back {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.messenger-chat-head-name {
+  font-weight: 600;
+}
+
+.messenger-chat-head-addr {
+  color: var(--text-faint);
+  font-size: 0.78em;
+}
+
+/* Thread */
+.messenger-thread-wrap {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+
+.messenger-thread {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.messenger-empty {
+  color: var(--text-faint);
+  text-align: center;
+  margin: 2.5em auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.messenger-empty-icon .svg-icon {
+  width: 34px;
+  height: 34px;
+}
+
+.messenger-empty-text {
+  max-width: 24ch;
+}
+
+.messenger-day {
+  align-self: center;
+  margin: 12px 0 6px;
+  padding: 2px 12px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 999px;
+  background: var(--background-secondary);
+  color: var(--text-muted);
+  font-size: 0.75em;
+}
+
+.messenger-load-earlier {
+  align-self: center;
+  margin: 4px 0 8px;
+  padding: 4px 14px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 999px;
+  background: var(--background-secondary);
+  color: var(--text-muted);
+  font-size: 0.78em;
+}
+
+.messenger-msg {
+  position: relative;
+  display: flex;
+  gap: 6px;
+  max-width: 82%;
+  margin-top: 4px;
+}
+
+.messenger-msg.mine {
+  align-self: flex-end;
+}
+
+.messenger-msg.theirs {
+  align-self: flex-start;
+}
+
+.messenger-msg-col {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.messenger-msg.mine .messenger-msg-col {
+  align-items: flex-end;
+}
+
+.messenger-msg.theirs .messenger-msg-col {
+  align-items: flex-start;
+}
+
+.messenger-msg-meta {
+  margin: 8px 2px 2px;
+  color: var(--text-faint);
+  font-size: 0.75em;
+}
+
+.messenger-bubble {
+  padding: 7px 11px;
+  margin-top: 2px;
+  border: 1px solid var(--background-modifier-border);
+  background: var(--background-secondary);
+  word-break: break-word;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  animation: messenger-pop 120ms ease-out;
+}
+
+.messenger-msg.theirs .messenger-bubble {
+  border-radius: 4px 14px 14px 14px;
+}
+
+.messenger-msg.mine .messenger-bubble {
+  border-radius: 14px 4px 14px 14px;
+  border-color: transparent;
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+}
+
+@keyframes messenger-pop {
+  from {
+    opacity: 0.4;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.messenger-msg.flash .messenger-bubble {
+  animation: messenger-flash 1.2s ease-out;
+}
+
+@keyframes messenger-flash {
+  0%,
+  40% {
+    box-shadow: 0 0 0 3px var(--text-accent);
+  }
+  100% {
+    box-shadow: 0 0 0 3px transparent;
+  }
+}
+
+.messenger-bubble > :first-child {
+  margin-top: 0;
+}
+
+.messenger-bubble > :last-child {
+  margin-bottom: 0;
+}
+
+.messenger-bubble p {
+  margin: 0.25em 0;
+}
+
+.messenger-bubble pre,
+.messenger-bubble code {
+  font-size: 0.85em;
+}
+
+/* ✓ delivered / ✓✓ read under my outgoing bubbles */
+.messenger-status {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin: 3px 4px 0 0;
+  opacity: 0.55;
+}
+
+.messenger-status-check .svg-icon {
+  width: 13px;
+  height: 13px;
+}
+
+.messenger-status-check + .messenger-status-check {
+  margin-left: -5px;
+}
+
+.messenger-status.is-read {
+  opacity: 1;
+  color: var(--interactive-accent);
+}
+
+/* Conversation list search */
+.messenger-list-search {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.messenger-search-input {
+  width: 100%;
+  border-radius: 10px;
+  background: var(--background-secondary);
+}
+
+.messenger-search-input:focus {
+  border-color: var(--interactive-accent);
+  box-shadow: 0 0 0 1px var(--interactive-accent);
+  outline: none;
+}
+
+/* Quoted context inside a bubble */
+.messenger-quote {
+  margin: 2px 0 6px;
+  padding: 4px 8px;
+  border-left: 3px solid currentColor;
+  border-radius: 4px;
+  background: rgba(127, 127, 127, 0.15);
+  font-size: 0.82em;
+  opacity: 0.85;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Per-message actions (reply) */
+.messenger-msg-actions {
+  position: absolute;
+  top: 14px;
+  display: flex;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+.messenger-msg.mine .messenger-msg-actions {
+  left: -30px;
+}
+
+.messenger-msg.theirs .messenger-msg-actions {
+  right: -30px;
+}
+
+.messenger-msg:hover .messenger-msg-actions {
+  opacity: 1;
+}
+
+.messenger-msg-action {
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 50%;
+}
+
+/* Touch devices: keep the reply affordance visible, bigger targets */
+@media (hover: none) {
+  .messenger-msg-actions {
+    opacity: 0.55;
+  }
+
+  .messenger-msg-action {
+    width: 34px;
+    height: 34px;
+  }
+
+  .messenger-conv {
+    padding: 12px 14px;
+  }
+}
+
+/* Scroll-to-bottom button */
+.messenger-scroll-down {
+  position: absolute;
+  right: 14px;
+  bottom: 12px;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid var(--background-modifier-border);
+  background: var(--background-primary);
+  box-shadow: var(--shadow-s);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 150ms ease;
+}
+
+.messenger-scroll-down.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.messenger-scroll-down.has-new {
+  opacity: 1;
+  pointer-events: auto;
+  border-color: var(--interactive-accent);
+  color: var(--interactive-accent);
+}
+
+/* Composer */
+.messenger-composer {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--background-modifier-border);
+  padding-bottom: max(0px, env(safe-area-inset-bottom));
+}
+
+.messenger-reply-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 12px -2px;
+  padding: 5px 8px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 8px;
+  background: var(--background-secondary);
+  font-size: 0.82em;
+}
+
+.messenger-reply-chip.is-hidden {
+  display: none;
+}
+
+.messenger-reply-icon {
+  color: var(--text-faint);
+  display: flex;
+}
+
+.messenger-reply-text {
+  flex: 1;
+  min-width: 0;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.messenger-reply-cancel {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.messenger-composer-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 10px 12px;
+}
+
+.messenger-composer textarea {
+  flex: 1;
+  resize: none;
+  min-height: 40px;
+  max-height: 160px;
+  border-radius: 14px;
+  padding: 10px 12px;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.messenger-composer textarea:focus {
+  border-color: var(--interactive-accent);
+  box-shadow: 0 0 0 1px var(--interactive-accent);
+  outline: none;
+}
+
+.messenger-send {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  color: var(--text-on-accent);
+  background: var(--interactive-accent);
+  transition: transform 80ms ease, opacity 120ms ease;
+}
+
+.messenger-send:active {
+  transform: scale(0.94);
+}
+
+.messenger-send.is-disabled {
+  opacity: 0.4;
+}
+
+@media (hover: none) {
+  .messenger-send,
+  .messenger-back,
+  .messenger-wallpaper-btn {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+.messenger-send:hover {
+  background: var(--interactive-accent-hover);
+}
+
+/* ── OM-2: cross-vault identity ─────────────────────────────────────── */
+
+.messenger-om2-badge {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 6px;
+  vertical-align: middle;
+  opacity: 0.75;
+}
+
+.messenger-om2-badge svg {
+  width: 13px;
+  height: 13px;
+}
+
+.messenger-om2-badge.is-verified {
+  color: var(--text-success, var(--color-green, #4caf7d));
+}
+
+.messenger-om2-badge.is-signed-unknown {
+  color: var(--text-muted);
+}
+
+.messenger-om2-badge.is-invalid {
+  color: var(--text-error, var(--color-red, #e35d5d));
+  opacity: 1;
+}
+
+.messenger-om2-badge .svg-icon,
+.messenger-om2-badge svg {
+  pointer-events: none;
+}
+
+.om2-copyable {
+  font-family: var(--font-monospace);
+  font-size: 0.85em;
+  background: var(--background-secondary);
+  border-radius: 6px;
+  padding: 6px 10px;
+  margin: 4px 0 10px;
+  cursor: pointer;
+  word-break: break-all;
+  user-select: all;
+}
+
+.om2-copyable.om2-key {
+  font-size: 0.78em;
+}
+
+.om2-contact {
+  padding: 6px 0;
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.om2-contact:last-of-type {
+  border-bottom: none;
+}
+
+.om2-contact-name {
+  font-weight: 500;
+}
+
+.om2-contact-handle {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.om2-contact-safety {
+  font-family: var(--font-monospace);
+  font-size: 0.82em;
+  letter-spacing: 0.03em;
+  color: var(--text-muted);
+  cursor: pointer;
+  margin-top: 2px;
+  user-select: all;
+}
+
+.om2-field {
+  margin: 10px 0;
+}
+
+.om2-field-name {
+  font-size: 0.85em;
+  color: var(--text-muted);
+  margin-bottom: 3px;
+}
+
+.om2-field-input {
+  width: 100%;
+  padding: 6px 10px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+  background: var(--background-primary);
+  color: var(--text-normal);
+}
+
+.om2-btnrow {
+  margin-top: 14px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* ── Wallpapers ─────────────────────────────────────────────────────── */
+
+/*
+ * Theming stance: every layer here sits OVER whatever the active theme
+ * paints — translucent gradients, theme-variable bubbles — so the author's
+ * theme keeps shining through. wallpaper.ts drives four per-wrap CSS vars
+ * (art opacity, tint color, tint alpha, bubble alpha) so users can blend
+ * the whole effect down to a pure-theme look.
+ */
+.messenger-thread-wrap {
+  /* faint film grain shared by every wallpaper — breaks up flat gradients */
+  --messenger-wp-grain: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0.06 0'/></filter><rect width='140' height='140' filter='url(%23g)'/></svg>");
+  --messenger-wallpaper-opacity: 1;
+  --messenger-wallpaper-image: none;
+  --messenger-wallpaper-tint: transparent;
+  --messenger-tint-alpha: 0.25;
+  --messenger-bubble-alpha: 88%;
+}
+
+/* The art paints on its own layer, never on the wrap, so the intensity
+   slider can fade it without touching content. */
+.messenger-thread-wrap::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: var(--messenger-wallpaper-image);
+  background-size: cover;
+  background-position: center;
+  opacity: var(--messenger-wallpaper-opacity, 1);
+  transition: opacity 240ms ease;
+}
+
+/* User tint wash — also visible with no wallpaper, which is how one
+   conversation gets its own color identity. */
+.messenger-thread-wrap::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: var(--messenger-wallpaper-tint);
+  opacity: var(--messenger-tint-alpha, 0.25);
+  transition: opacity 240ms ease;
+}
+
+/* Content stays above both layers (flex items honor z-index). */
+.messenger-thread-wrap > * {
+  z-index: 1;
+}
+
+/* Explicit off-state: no art layer at all. */
+.messenger-thread-wrap[data-wallpaper="none"]::before {
+  background: none;
+}
+
+.messenger-thread-wrap[data-wallpaper="aurora"]::before {
+  background:
+    var(--messenger-wp-grain) repeat,
+    radial-gradient(90% 70% at 80% -10%, rgba(45, 212, 191, 0.28), transparent 60%),
+    radial-gradient(80% 60% at 10% 110%, rgba(129, 140, 248, 0.30), transparent 55%),
+    linear-gradient(165deg, rgba(30, 64, 175, 0.22), rgba(15, 118, 110, 0.16) 55%, rgba(88, 28, 135, 0.20));
+}
+
+.messenger-thread-wrap[data-wallpaper="dusk"]::before {
+  background:
+    var(--messenger-wp-grain) repeat,
+    radial-gradient(100% 60% at 50% -10%, rgba(244, 114, 182, 0.26), transparent 60%),
+    linear-gradient(180deg, rgba(99, 102, 241, 0.16), rgba(190, 24, 93, 0.12) 60%, rgba(49, 46, 129, 0.22));
+}
+
+.messenger-thread-wrap[data-wallpaper="midnight"]::before {
+  background:
+    var(--messenger-wp-grain) repeat,
+    radial-gradient(120% 80% at 50% 120%, rgba(59, 130, 246, 0.20), transparent 65%),
+    linear-gradient(180deg, rgba(15, 23, 42, 0.60), rgba(2, 6, 23, 0.40));
+}
+
+.messenger-thread-wrap[data-wallpaper="mist"]::before {
+  background:
+    var(--messenger-wp-grain) repeat,
+    radial-gradient(110% 70% at 20% -10%, rgba(203, 213, 225, 0.45), transparent 60%),
+    radial-gradient(90% 60% at 90% 100%, rgba(196, 181, 253, 0.22), transparent 55%),
+    linear-gradient(180deg, rgba(148, 163, 184, 0.18), rgba(226, 232, 240, 0.12));
+}
+
+.messenger-thread-wrap[data-wallpaper="meadow"]::before {
+  background:
+    var(--messenger-wp-grain) repeat,
+    radial-gradient(100% 70% at 85% 110%, rgba(74, 222, 128, 0.25), transparent 60%),
+    radial-gradient(80% 50% at 0% 0%, rgba(186, 230, 253, 0.30), transparent 55%),
+    linear-gradient(165deg, rgba(34, 197, 94, 0.14), rgba(132, 204, 22, 0.10) 55%, rgba(20, 83, 45, 0.16));
+}
+
+.messenger-thread-wrap[data-wallpaper="sunset"]::before {
+  background:
+    var(--messenger-wp-grain) repeat,
+    radial-gradient(90% 60% at 50% 115%, rgba(251, 146, 60, 0.30), transparent 60%),
+    radial-gradient(70% 50% at 85% -5%, rgba(244, 114, 182, 0.20), transparent 55%),
+    linear-gradient(180deg, rgba(254, 243, 199, 0.35), rgba(251, 146, 60, 0.18) 55%, rgba(190, 24, 93, 0.22));
+}
+
+.messenger-thread-wrap[data-wallpaper="ink"]::before {
+  background:
+    var(--messenger-wp-grain) repeat,
+    radial-gradient(90% 60% at 15% 0%, rgba(148, 163, 184, 0.10), transparent 55%),
+    linear-gradient(170deg, rgba(15, 15, 20, 0.60), rgba(35, 35, 40, 0.35));
+}
+
+.messenger-thread-wrap[data-wallpaper="paper"]::before {
+  background:
+    var(--messenger-wp-grain) repeat,
+    radial-gradient(80% 50% at 90% 0%, rgba(251, 191, 36, 0.08), transparent 55%),
+    linear-gradient(175deg, rgba(253, 246, 227, 0.55), rgba(237, 226, 200, 0.40));
+}
+
+/* Dark-theme paper is the same sheet by lamplight — warm umber, not cream. */
+body.theme-dark .messenger-thread-wrap[data-wallpaper="paper"]::before {
+  background:
+    var(--messenger-wp-grain) repeat,
+    radial-gradient(80% 50% at 90% 0%, rgba(251, 191, 36, 0.10), transparent 55%),
+    linear-gradient(175deg, rgba(120, 95, 70, 0.25), rgba(70, 55, 42, 0.18));
+}
+
+/* The dark wallpapers earn their name in light theme too, and ambient text
+   (sender/time rows, empty states) that sits directly on the art needs a
+   light hand to stay legible there. */
+body.theme-light .messenger-thread-wrap[data-wallpaper="midnight"]::before {
+  background:
+    var(--messenger-wp-grain) repeat,
+    radial-gradient(120% 80% at 50% 120%, rgba(59, 130, 246, 0.22), transparent 65%),
+    linear-gradient(180deg, rgba(15, 23, 42, 0.82), rgba(2, 6, 23, 0.72));
+}
+
+body.theme-light .messenger-thread-wrap[data-wallpaper="ink"]::before {
+  background:
+    var(--messenger-wp-grain) repeat,
+    radial-gradient(90% 60% at 15% 0%, rgba(148, 163, 184, 0.12), transparent 55%),
+    linear-gradient(170deg, rgba(15, 15, 20, 0.82), rgba(30, 30, 35, 0.72));
+}
+
+body.theme-light .messenger-thread-wrap[data-wallpaper="midnight"] .messenger-msg-meta,
+body.theme-light .messenger-thread-wrap[data-wallpaper="ink"] .messenger-msg-meta,
+body.theme-light .messenger-thread-wrap[data-wallpaper="midnight"] .messenger-empty,
+body.theme-light .messenger-thread-wrap[data-wallpaper="ink"] .messenger-empty {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+/* ── Readability over any active wallpaper or tint ─────────────────── */
+
+.messenger-thread-wrap[data-wallpaper]:not([data-wallpaper="none"]) .messenger-thread,
+.messenger-thread-wrap.is-tinted .messenger-thread {
+  background: transparent;
+}
+
+/* Solid fallback line first: pre-color-mix Chromium still gets an opaque,
+   readable bubble instead of an invalid background. */
+.messenger-thread-wrap:is([data-wallpaper]:not([data-wallpaper="none"]), .is-tinted) .messenger-bubble {
+  background: var(--background-primary);
+  background: color-mix(in srgb, var(--background-primary) var(--messenger-bubble-alpha, 88%), transparent);
+}
+
+.messenger-thread-wrap:is([data-wallpaper]:not([data-wallpaper="none"]), .is-tinted) .messenger-msg.mine .messenger-bubble {
+  background: var(--interactive-accent);
+  background: color-mix(in srgb, var(--interactive-accent) var(--messenger-bubble-alpha, 88%), transparent);
+}
+
+.messenger-thread-wrap:is([data-wallpaper]:not([data-wallpaper="none"]), .is-tinted) .messenger-day,
+.messenger-thread-wrap:is([data-wallpaper]:not([data-wallpaper="none"]), .is-tinted) .messenger-load-earlier {
+  background: var(--background-secondary);
+  background: color-mix(in srgb, var(--background-primary) calc(var(--messenger-bubble-alpha, 88%) - 6%), transparent);
+}
+
+/* Header control that opens the per-conversation wallpaper menu. */
+.messenger-wallpaper-btn {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+}
+
+/* Per-conversation tint modal (chat header → Tint color…) */
+.messenger-tint-modal .messenger-tint-note {
+  color: var(--text-muted);
+  font-size: 0.9em;
+  max-width: 44ch;
+  margin-bottom: 10px;
+}
+
+.messenger-tint-modal .messenger-tint-input {
+  width: 100%;
+  height: 44px;
+  padding: 2px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 8px;
+  background: var(--background-secondary);
+}
+
+.messenger-tint-modal .messenger-tint-row {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+/* ── Avatars: vault PFPs + generated fallback (see src/appearance/avatar.ts) ────────── */
+
+/* The chosen vault image fills the circle; clicks stay on the parent el. */
+.messenger-avatar-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+/* Generated fallback: the gradient itself is painted inline from TS — only
+   shape and legibility rules live here, never sizing (styles.css owns that). */
+.messenger-avatar.is-generated {
+  overflow: hidden;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+}
+
+/* Vault-image picker suggestion rows */
+.messenger-avatar-picker-icon {
+  display: inline-flex;
+  vertical-align: middle;
+  margin-right: 6px;
+  color: var(--text-muted);
+}
+
+.messenger-avatar-picker-icon svg,
+.messenger-avatar-picker-icon .svg-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.messenger-avatar-picker-path {
+  vertical-align: middle;
+}
+
+/* The chat header avatar doubles as the PFP picker target. */
+.messenger-avatar-clickable {
+  cursor: pointer;
+}
+
+/* ── Emoji: composer picker, :shortcode: autocomplete, jumbo bubbles ───── */
+
+/* The popover and the autocomplete both anchor to the composer row. */
+.messenger-composer-row {
+  position: relative;
+}
+
+/* Toggle — mirrors .messenger-send sizing but sits quiet at the left. */
+.messenger-emoji-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1px solid var(--background-modifier-border);
+  background: var(--background-secondary);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 120ms ease, transform 80ms ease;
+}
+
+.messenger-emoji-toggle:hover {
+  background: var(--background-modifier-hover);
+}
+
+.messenger-emoji-toggle:active {
+  transform: scale(0.94);
+}
+
+/* Popover above the composer; horizontal overhang is corrected with an
+   inline translateX by the module after layout. */
+.messenger-emoji-popover {
+  position: absolute;
+  left: 0;
+  bottom: 100%;
+  margin-bottom: 8px;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: min(320px, calc(100vw - 24px));
+  max-height: 260px;
+  padding: 8px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 12px;
+  background: var(--background-primary);
+  box-shadow: var(--shadow-s);
+}
+
+/* Search rides on the .messenger-search-input look from styles.css. */
+.messenger-emoji-search {
+  font-size: 0.9em;
+}
+
+.messenger-emoji-tabs {
+  display: flex;
+  gap: 2px;
+  overflow-x: auto;
+}
+
+.messenger-emoji-tab {
+  flex: 1 0 auto;
+  min-width: 32px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  font-size: 17px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.6;
+}
+
+.messenger-emoji-tab:hover {
+  background: var(--background-modifier-hover);
+  opacity: 1;
+}
+
+.messenger-emoji-tab.is-active {
+  background: var(--background-modifier-active-hover);
+  opacity: 1;
+}
+
+.messenger-emoji-recents {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.messenger-emoji-recents.is-empty {
+  display: none;
+}
+
+.messenger-emoji-recents-label {
+  flex-shrink: 0;
+  padding: 0 6px 0 2px;
+  color: var(--text-faint);
+  font-size: 0.68em;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.messenger-emoji-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.messenger-emoji-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(36px, 1fr));
+  gap: 2px;
+  padding-top: 4px;
+}
+
+.messenger-emoji-cell {
+  min-width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.messenger-emoji-cell:hover,
+.messenger-emoji-cell:focus-visible {
+  background: var(--background-modifier-hover);
+  outline: none;
+}
+
+.messenger-emoji-empty {
+  padding: 12px 4px;
+  color: var(--text-faint);
+  text-align: center;
+  font-size: 0.85em;
+}
+
+/* :shortcode: autocomplete list above the composer */
+.messenger-emoji-ac {
+  position: absolute;
+  left: 0;
+  bottom: 100%;
+  margin-bottom: 8px;
+  z-index: 21;
+  width: min(280px, calc(100vw - 24px));
+  padding: 4px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 10px;
+  background: var(--background-primary);
+  box-shadow: var(--shadow-s);
+}
+
+.messenger-emoji-ac-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  border-radius: 7px;
+  cursor: pointer;
+}
+
+.messenger-emoji-ac-item.is-active,
+.messenger-emoji-ac-item:hover {
+  background: var(--background-modifier-hover);
+}
+
+.messenger-emoji-ac-emoji {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.messenger-emoji-ac-name {
+  color: var(--text-muted);
+  font-family: var(--font-monospace);
+  font-size: 0.82em;
+}
+
+/* Jumbo bubbles — the integrator stamps this using isEmojiOnly(). */
+.messenger-bubble.messenger-emoji-only {
+  font-size: 2.1em;
+}
+
+/* Touch: bigger targets, matching the enlarged send/back buttons. */
+@media (hover: none) {
+  .messenger-emoji-toggle {
+    width: 44px;
+    height: 44px;
+  }
+
+  .messenger-emoji-cell {
+    min-width: 40px;
+    height: 40px;
+  }
+}

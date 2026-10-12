@@ -1,0 +1,49 @@
+{
+	"name": "curtis-ai-porter",
+	"version": "1.0.0",
+	"description": "Port your AI chat history — ChatGPT, Claude, DeepSeek, anything — into Curtis .curt files and Obsidian-ready markdown, and back out to continuation packs, ChatGPT-shape JSON or API JSONL. Local-first: nothing leaves your machine.",
+	"type": "module",
+	"bin": {
+		"curt-porter": "dist/cli.mjs"
+	},
+	"main": "main.js",
+	"scripts": {
+		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs",
+		"test": "node esbuild.config.mjs tests && node --test \"dist-test/*.test.js\"",
+		"start": "node dist/cli.mjs serve",
+		"porter": "node dist/cli.mjs"
+	},
+	"keywords": [
+		"curtis",
+		"obsidian",
+		"chatgpt",
+		"claude",
+		"deepseek",
+		"chat",
+		"export",
+		"import",
+		"converter",
+		"markdown",
+		"local-first"
+	],
+	"author": "Jordan Newell",
+	"license": "BUSL-1.1",
+	"engines": {
+		"node": ">=18"
+	},
+	"dependencies": {
+		"fflate": "0.8.3",
+		"yaml": "2.9.1"
+	},
+	"devDependencies": {
+		"@eslint/js": "^9.39.5",
+		"@eslint/json": "^0.14.0",
+		"@types/node": "20.19.43",
+		"esbuild": "0.19.12",
+		"eslint": "^9.39.5",
+		"eslint-plugin-obsidianmd": "^0.4.2",
+		"obsidian": "1.13.1",
+		"typescript": "5.9.3",
+		"typescript-eslint": "^8.71.1"
+	}
+}

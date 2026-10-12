@@ -1,0 +1,65 @@
+# Builds the plugin bundle from the tagged commit, tests it, signs build
+# provenance attestations for the release assets, and publishes the release.
+#
+# Release flow: bump the version in manifest.json, add the version to
+# versions.json, then tag the release with the bare version number (0.Y.Z —
+# the Obsidian review matches tags to manifest versions exactly) and push it.
+# vX.Y.Z tags also work; the v is stripped before the version check.
+# Verify an asset with:
+#   gh attestation verify main.js -R <owner>/<repo>
+
+name: Release
+
+on:
+  push:
+    tags: ['v*', '[0-9]*']
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run build
+
+      - run: npm test
+
+      - name: Check tag matches manifest version
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          manifest="$(node -p "require('./manifest.json').version")"
+          if [ "$tag" != "$manifest" ]; then
+            echo "tag v$tag does not match manifest.json version $manifest" >&2
+            exit 1
+          fi
+
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@v3
+        with:
+          subject-path: |
+            main.js
+            styles.css
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            --verify-tag \
+            --title "$GITHUB_REF_NAME" \
+            --generate-notes \
+            main.js styles.css manifest.json

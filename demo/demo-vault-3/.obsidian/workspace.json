@@ -1,0 +1,244 @@
+{
+  "main": {
+    "id": "2016459be1fd6249",
+    "type": "split",
+    "children": [
+      {
+        "id": "d4f14dd4b5e4490c",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "f6894420769ed044",
+            "type": "leaf",
+            "state": {
+              "type": "empty",
+              "state": {},
+              "icon": "lucide-file",
+              "title": "New tab"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "661488831df24238",
+    "type": "split",
+    "children": [
+      {
+        "id": "b16318a9a204041c",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "9eac8830d934b194",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "7a8b047f87654316",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "50063916159e2ed7",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "53211896cedb8a39",
+    "type": "split",
+    "children": [
+      {
+        "id": "83070bc267d5e500",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "44ed758e75b39ddb",
+            "type": "leaf",
+            "state": {
+              "type": "messenger-chat",
+              "state": {
+                "peer": "bob"
+              },
+              "icon": "mail",
+              "title": "Messenger"
+            }
+          },
+          {
+            "id": "bac7cb10fe4ae815",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "Messenger/alice/inbox.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks"
+            }
+          },
+          {
+            "id": "61317990de44e0ec",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links"
+            }
+          },
+          {
+            "id": "05774c0b8abc9994",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "ae7cfbf854e8fe33",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "9781d523e455a3f2",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 755.5
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "curtis-ai-chat-porter:Curtis Porter": false,
+      "curtis:Curtis: new research task": false,
+      "obsidian-messenger:Open Messenger chat": false,
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false
+    }
+  },
+  "active": "9eac8830d934b194",
+  "lastOpenFiles": [
+    "Curtis/Runs/2026-10-10-23-45-what-are-the-current-top-stories-on-hack/Replay.md",
+    "Curtis/Runs/2026-10-10-23-45-what-are-the-current-top-stories-on-hack/Findings.md",
+    "Curtis/Runs/2026-10-10-23-45-what-are-the-current-top-stories-on-hack/Sources/news-ycombinator-com-best-115890.md",
+    "Curtis/Runs/2026-10-10-23-45-what-are-the-current-top-stories-on-hack/Sources/html-duckduckgo-com-html-866a76.md",
+    "Curtis/Runs/2026-10-10-23-45-what-are-the-current-top-stories-on-hack/Task.md",
+    "Curtis/Runs/2026-10-10-23-45-what-are-the-current-top-stories-on-hack/screenshots/002.jpg",
+    "Curtis/Runs/2026-10-10-23-45-what-are-the-current-top-stories-on-hack/screenshots/001.jpg",
+    "Curtis/Runs/2026-10-10-23-45-what-are-the-current-top-stories-on-hack/replay.jsonl",
+    "Curtis/Runs/2026-10-10-23-45-what-are-the-current-top-stories-on-hack/screenshots",
+    "Curtis/Runs/2026-10-10-23-45-what-are-the-current-top-stories-on-hack/Sources",
+    "Curtis/Runs/2026-10-10-23-45-what-are-the-current-top-stories-on-hack",
+    "Curtis/Runs/2026-10-10-23-29-what-are-the-current-top-stories-on-hack/Replay.md",
+    "Curtis/Runs/2026-10-10-23-29-what-are-the-current-top-stories-on-hack/Findings.md",
+    "Curtis/Runs/2026-10-10-23-29-what-are-the-current-top-stories-on-hack/Sources/news-ycombinator-com-best-115890.md",
+    "Curtis/Runs/2026-10-10-23-29-what-are-the-current-top-stories-on-hack/Sources/html-duckduckgo-com-html-866a76.md",
+    "Curtis/Runs/2026-10-10-23-29-what-are-the-current-top-stories-on-hack/Task.md",
+    "Curtis/Runs/2026-10-10-23-29-what-are-the-current-top-stories-on-hack/screenshots/003.jpg",
+    "Curtis/Runs/2026-10-10-23-29-what-are-the-current-top-stories-on-hack/screenshots/002.jpg",
+    "Curtis/Runs/2026-10-10-23-29-what-are-the-current-top-stories-on-hack/screenshots/001.jpg",
+    "Curtis/Runs/2026-10-10-23-29-what-are-the-current-top-stories-on-hack/replay.jsonl",
+    "Curtis/Runs/2026-10-10-23-29-what-are-the-current-top-stories-on-hack/screenshots",
+    "Curtis/Runs/2026-10-10-23-29-what-are-the-current-top-stories-on-hack/Sources",
+    "Curtis/Runs/2026-10-10-23-29-what-are-the-current-top-stories-on-hack",
+    "Curtis/Runs/2026-10-10-23-24-what-are-the-current-top-stories-on-hack/Replay.md",
+    "Curtis/Runs/2026-10-10-23-24-what-are-the-current-top-stories-on-hack/Findings.md",
+    "Curtis/Runs/2026-10-10-23-24-what-are-the-current-top-stories-on-hack/Sources/html-duckduckgo-com-html-866a76.md",
+    "Curtis/Runs/2026-10-10-23-24-what-are-the-current-top-stories-on-hack/Task.md",
+    "Curtis/Runs/2026-10-10-23-24-what-are-the-current-top-stories-on-hack/screenshots/001.jpg",
+    "Curtis/Runs/2026-10-10-23-24-what-are-the-current-top-stories-on-hack/replay.jsonl",
+    "Curtis/Runs/2026-10-10-23-24-what-are-the-current-top-stories-on-hack/screenshots",
+    "Curtis/Runs/2026-10-10-23-19-what-are-the-current-top-stories-on-hack/Replay.md",
+    "Curtis/Runs/2026-10-10-23-19-what-are-the-current-top-stories-on-hack/Findings.md",
+    "Curtis/Runs/2026-10-10-23-19-what-are-the-current-top-stories-on-hack/Sources/html-duckduckgo-com-html-866a76.md",
+    "Curtis/Runs/2026-10-10-23-19-what-are-the-current-top-stories-on-hack/Task.md",
+    "Curtis/Runs/2026-10-10-23-19-what-are-the-current-top-stories-on-hack/screenshots/001.jpg",
+    "2026-10-10.md",
+    "Untitled.md",
+    "HOME.md",
+    "Messenger/alice/inbox.md",
+    "Messenger/bob/inbox.md",
+    "Messenger/alice/receipts.md",
+    "Messenger/registry.md"
+  ]
+}

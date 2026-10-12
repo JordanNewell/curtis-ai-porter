@@ -1,0 +1,44 @@
+{
+  "address": "alice",
+  "displayName": "",
+  "onboarded": true,
+  "root": "Messenger",
+  "hiddenStorage": true,
+  "lastRoot": ".obsidian/plugins/obsidian-messenger/mailbox",
+  "pollSeconds": 3,
+  "retentionDays": 30,
+  "debug": true,
+  "cursors": {
+    "bob": {
+      "id": "msg_mv2sxiasphih97",
+      "ts": "2026-10-10T19:43:07.492Z"
+    },
+    "alice": {
+      "id": "msg_mv2sxiqhaab545",
+      "ts": "2026-10-10T19:43:08.057Z"
+    },
+    "carol-debug": {
+      "id": "msg_mv2nnkiabo8phz",
+      "ts": "2026-10-10T17:15:25.714Z"
+    }
+  },
+  "readAt": {
+    "bob": "2026-10-11T01:10:59.790Z",
+    "carol": "2026-10-10T17:44:22.507Z"
+  },
+  "notifyPopup": true,
+  "notifySound": true,
+  "sendReadReceipts": true,
+  "wallpaper": "aurora",
+  "wallpaperByPeer": {},
+  "customWallpaperPath": "",
+  "wallpaperIntensity": 100,
+  "wallpaperTint": "",
+  "wallpaperTintByPeer": {},
+  "wallpaperTintStrength": 25,
+  "bubbleAlpha": 88,
+  "avatars": {},
+  "recentEmoji": [
+    "😀"
+  ]
+}

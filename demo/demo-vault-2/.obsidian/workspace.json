@@ -1,0 +1,342 @@
+{
+  "main": {
+    "id": "6d7d26425b9587ab",
+    "type": "split",
+    "children": [
+      {
+        "id": "5a1222cffb103201",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "4405251a783c2a92",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Messenger/bob/inbox.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "inbox"
+            }
+          },
+          {
+            "id": "6f455bdfcafaba11",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Messenger/bob/inbox.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "inbox"
+            }
+          },
+          {
+            "id": "720709b317a086dc",
+            "type": "leaf",
+            "state": {
+              "type": "messenger-chat",
+              "state": {},
+              "icon": "lucide-ghost",
+              "title": "messenger-chat"
+            }
+          },
+          {
+            "id": "773555132cbce3be",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Messenger/bob/inbox.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "inbox"
+            }
+          },
+          {
+            "id": "c9564484d21c96e1",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Messenger/bob/inbox.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "inbox"
+            }
+          },
+          {
+            "id": "dafe10bbeb90cbee",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Messenger/bob/inbox.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "inbox"
+            }
+          },
+          {
+            "id": "b149a1f2d92e2739",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Messenger/bob/inbox.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "inbox"
+            }
+          },
+          {
+            "id": "d1993117a6e1d17e",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Messenger/bob/inbox.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "inbox"
+            }
+          },
+          {
+            "id": "6f4f56a98ac74fbc",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Messenger/bob/inbox.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "inbox"
+            }
+          }
+        ],
+        "currentTab": 2
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "146cff5f65ba6a50",
+    "type": "split",
+    "children": [
+      {
+        "id": "21cdb0df9aab32c6",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "82710d4dbf7cccec",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "d74c0613968689fc",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "2e18e398afd8bd8c",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "73a233fc4f073fad",
+    "type": "split",
+    "children": [
+      {
+        "id": "4ed393bb0f2e69c6",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "fab03d8c2d1efe2b",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks"
+            }
+          },
+          {
+            "id": "d02cf57368f23108",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links"
+            }
+          },
+          {
+            "id": "124c34a987b78c0e",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "51c787551ee56d18",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "2ba302b18053b411",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline"
+            }
+          },
+          {
+            "id": "5efc67dbd201443b",
+            "type": "leaf",
+            "state": {
+              "type": "curtis-chat",
+              "state": {},
+              "icon": "curtis-mark",
+              "title": "Curtis AI"
+            }
+          },
+          {
+            "id": "2824ae1eb6e646de",
+            "type": "leaf",
+            "state": {
+              "type": "messenger-chat",
+              "state": {},
+              "icon": "lucide-ghost",
+              "title": "messenger-chat"
+            }
+          },
+          {
+            "id": "d59a9b6b2357602b",
+            "type": "leaf",
+            "state": {
+              "type": "curtis-porter-view",
+              "state": {},
+              "icon": "curtis-porter-mark",
+              "title": "Curtis Porter"
+            }
+          }
+        ],
+        "currentTab": 5
+      }
+    ],
+    "direction": "horizontal",
+    "width": 733.5
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "curtis-ai-audit:Curtis AI Audit": false,
+      "curtis-ai-chat:Open Curtis AI": false,
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false,
+      "curtis-ai-chat-porter:Curtis Porter": false
+    }
+  },
+  "active": "5efc67dbd201443b",
+  "lastOpenFiles": [
+    "Messenger/alice/receipts.md",
+    "Messenger/bob/inbox.md",
+    "Messenger/carol-debug/inbox.md",
+    "Messenger/bob/receipts.md",
+    "Messenger/alice/inbox.md",
+    "Messenger/alice",
+    "HOME.md.tmp.35616.09b8ae67c8f7",
+    "HOME.md.tmp.35616.565474f39640",
+    "AI/Curtis Memory.md"
+  ]
+}

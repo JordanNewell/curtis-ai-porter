@@ -1,0 +1,4 @@
+{"ts":"2026-10-10T23:45:48.240Z","step":1,"action":"navigate","url":"https://html.duckduckgo.com/html/?q=current%20top%20stories%20on%20Hacker%20News","outcome":"allowed","decidedBy":"user"}
+{"ts":"2026-10-10T23:45:48.533Z","step":1,"action":"read","url":"https://html.duckduckgo.com/html/?q=current%20top%20stories%20on%20Hacker%20News","outcome":"allowed","decidedBy":"policy","screenshot":"screenshots/001.jpg"}
+{"ts":"2026-10-10T23:47:19.219Z","step":2,"action":"navigate","url":"https://news.ycombinator.com/best?h=24","outcome":"allowed","decidedBy":"user"}
+{"ts":"2026-10-10T23:47:19.602Z","step":2,"action":"read","url":"https://news.ycombinator.com/best?h=24","outcome":"allowed","decidedBy":"policy","screenshot":"screenshots/002.jpg"}

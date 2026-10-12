@@ -1,0 +1,9 @@
+{
+  "id": "curtis",
+  "name": "Curtis",
+  "version": "0.1.0",
+  "minAppVersion": "1.5.0",
+  "description": "Watchable, permissioned AI research agent. Real browser, your keys, findings land in your vault.",
+  "author": "Curtis",
+  "isDesktopOnly": true
+}

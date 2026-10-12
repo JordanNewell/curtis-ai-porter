@@ -1,0 +1,62 @@
+# Deploys the GitHub Pages site: the landing page plus the real web app
+# (dist/porter.html), built fresh from source on every push.
+#
+# One-time setup: Settings → Pages → Source → "GitHub Actions".
+
+name: Deploy site
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'site/**'
+      - 'src/**'
+      - 'esbuild.config.mjs'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/deploy-site.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run build
+
+      - name: Assemble site
+        run: |
+          mkdir -p _site/assets _site/shots
+          cp site/index.html _site/
+          cp dist/porter.html _site/
+          cp assets/porter-logo.png assets/porter-logo-512.png assets/favicon-32.png _site/assets/
+          cp site/shots/*.png _site/shots/
+          touch _site/.nojekyll
+
+      - name: Upload pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - id: deployment
+        uses: actions/deploy-pages@v4

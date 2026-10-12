@@ -1,0 +1,4246 @@
+/* ============================================================================
+   Curtis — Sidebar Chat UI
+   Design language: modern messenger (Telegram/iMessage/Claude.ai) —
+   soft rounded bubbles, generous radius, subtle depth, theme-adaptive.
+   ============================================================================ */
+
+/* Shared motion token — one duration + easing for every interactive
+   transition across chat, terminal, and modals. */
+:root {
+	--curtis-motion: 140ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/* ============================================================================
+   CHAT VIEW LAYOUT
+   ============================================================================ */
+
+.ai-chat-view {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	overflow: hidden;
+	background: var(--background-primary);
+	position: relative;
+	/* Container query anchor — lets the composer adapt based on the PANE
+	 * width (not the viewport), so a narrow sidebar scales like a phone. */
+	container-type: inline-size;
+	/* Live color — follows the user's Obsidian accent (Settings → Appearance).
+	 * The send button and the streaming/thinking carets all hang off these
+	 * three tokens, so retheming is a one-line change. */
+	--curtis-neon: var(--interactive-accent);
+	--curtis-neon-bright: var(--interactive-accent-hover);
+	--curtis-neon-ink: var(--text-on-accent);
+	/* Crisper text on the glass surfaces. */
+	-webkit-font-smoothing: antialiased;
+	text-rendering: optimizeLegibility;
+}
+
+/* Accent-tinted selection inside the chat — small, but it reads. */
+.ai-chat-view ::selection {
+	background: color-mix(in srgb, var(--interactive-accent) 28%, transparent);
+}
+
+/* ============================================================================
+   TOP BAR — slim row of conversation-level tools: new chat, active-note
+   pill (left) and auto-speak / history / export / search (right). Everything
+   about composing the next message lives in the composer box at the bottom.
+   The inner wrapper caps to the composer column, so the whole view reads as
+   ONE aligned chat column on wide panes (the big-web-UI pattern).
+   ============================================================================ */
+
+.ai-chat-topbar {
+	flex-shrink: 0;
+	padding: 8px 16px 10px;
+	/* Fades out downward so messages scroll under it without a hard edge. */
+	background: linear-gradient(to bottom, var(--background-primary) 40%, transparent);
+	/* Foreground element — sits above the .ai-chat-background watermark. */
+	position: relative;
+	z-index: 4;
+}
+
+.ai-chat-topbar-inner {
+	display: flex;
+	align-items: center;
+	gap: var(--size-4-1);
+	max-width: 760px;
+	margin-inline: auto;
+	width: 100%;
+	min-width: 0;
+}
+
+/* Three-zone bar: title zone and tools zone flex equally around the model
+ * picker, so the pill sits at the bar's optical midpoint. Each zone yields
+ * (ellipsis / overflow-hidden) before the picker ever gets squeezed. */
+.ai-chat-topbar-tools {
+	display: flex;
+	align-items: center;
+	gap: var(--size-4-1);
+	flex: 1 1 auto;
+	justify-content: flex-end;
+	min-width: 0;
+	overflow: hidden;
+}
+
+/* Conversation title — quiet label left of the model picker; click renames.
+ * Yields space first (ellipsis). Stays in layout even when empty so the
+ * picker keeps its centered slot on a fresh chat; the pointer affordance
+ * only applies when there is something to rename. */
+.ai-chat-topbar-title {
+	flex: 1 1 auto;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	color: var(--text-muted);
+	font-size: var(--font-ui-small);
+	user-select: none;
+	/* Hover pill — quiet surface so the title reads interactive when there's
+	 * something to rename; negative start margin keeps the text aligned with
+	 * its neighbors despite the padding. */
+	padding: 2px var(--size-2-2);
+	margin-inline-start: calc(var(--size-2-2) * -1);
+	border-radius: var(--radius-s);
+	transition:
+		background var(--curtis-motion),
+		color var(--curtis-motion);
+}
+
+.ai-chat-topbar-title:not(:empty) {
+	cursor: pointer;
+}
+
+.ai-chat-topbar-title:hover:not(:empty) {
+	background: var(--background-modifier-hover);
+	color: var(--text-normal);
+}
+
+/* Leader badge — the quiet crown before a leader chat's title. Inline-flex
+ * keeps it on the title's baseline; gap separates it from the text span. */
+.ai-chat-leader-badge {
+	display: inline-flex;
+	align-items: center;
+	vertical-align: -2px;
+	margin-right: 4px;
+	color: var(--color-yellow, #e0ac00);
+}
+
+.ai-chat-leader-badge .svg-icon {
+	width: 13px;
+	height: 13px;
+}
+
+.ai-chat-icon-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	padding: 0;
+	background: transparent;
+	border: none;
+	/* Kill theme bleed — Obsidian themes that restyle bare `button` elements
+	 * would otherwise chip-ify these ghosts. */
+	box-shadow: none;
+	border-radius: var(--radius-m);
+	color: var(--text-muted);
+	cursor: pointer;
+	transition:
+		background var(--curtis-motion),
+		color var(--curtis-motion),
+		box-shadow var(--curtis-motion);
+	flex-shrink: 0;
+}
+
+.ai-chat-icon-btn:hover {
+	background: var(--background-modifier-hover);
+	color: var(--text-normal);
+}
+
+.ai-chat-icon-btn svg {
+	width: 18px;
+	height: 18px;
+}
+
+/* Obsidian ≥1.13 gives every `button:not(.clickable-icon)` form-button
+ * chrome — interactive-normal fill, input shadow, text-color ink — at
+ * (0,1,1), one specificity notch above the plugin's single-class button
+ * rules. Without this reset the composer's flat controls render as boxed
+ * chips and the send arrow loses its dark ink. (0,2,0) under the view scope
+ * wins it back. Core never touches background-image, so the send disc's
+ * gradient survives untouched; placed BEFORE the :hover rules below so the
+ * equal-specificity state rules still win their ties. */
+.ai-chat-view .ai-chat-icon-btn,
+.ai-chat-view .ai-model-picker-btn,
+.ai-chat-view .ai-agent-pill,
+.ai-chat-view .ai-chat-abort-btn {
+	background-color: transparent;
+	box-shadow: none;
+}
+
+.ai-chat-view .ai-chat-icon-btn {
+	color: var(--text-muted);
+}
+
+.ai-chat-view .ai-model-picker-btn {
+	color: var(--text-normal);
+}
+
+.ai-chat-view .ai-chat-abort-btn {
+	color: var(--text-error);
+}
+
+.ai-chat-view .ai-chat-send-btn {
+	background-color: transparent;
+	color: var(--curtis-neon-ink);
+	box-shadow:
+		0 0 0 1px color-mix(in srgb, var(--curtis-neon) 40%, transparent),
+		0 2px 10px color-mix(in srgb, var(--curtis-neon) 38%, transparent),
+		0 0 22px color-mix(in srgb, var(--curtis-neon) 22%, transparent);
+}
+
+/* Keyboard parity with hover — every ghost control shows the theme's focus
+ * ring when tabbed to. Scoped + (0,3,0) so it beats the chrome reset above
+ * and the single-class state rules below. */
+.ai-chat-view .ai-chat-icon-btn:focus-visible,
+.ai-chat-view .ai-model-picker-btn:focus-visible,
+.ai-chat-view .ai-chat-send-btn:focus-visible,
+.ai-chat-view .ai-chat-abort-btn:focus-visible,
+.ai-chat-view .ai-message-action-btn:focus-visible {
+	outline: none;
+	box-shadow:
+		0 0 0 2px var(--background-primary),
+		0 0 0 4px var(--background-modifier-border-focus);
+}
+
+/* Model picker button — a chip that promises a menu: bordered, quiet, with a
+ * chevron that rotates while the dropdown is open. Sits inside the composer
+ * control row. min-width guarantees dot + ~6 characters of name + chevron —
+ * the row may get tight, but the picker never collapses to a bare dot. */
+.ai-model-picker-btn {
+	flex: 0 1 auto;
+	min-width: 92px;
+	max-width: 45%;
+	display: flex;
+	align-items: center;
+	gap: var(--size-4-2);
+	padding: 3px var(--size-4-2) 3px var(--size-4-3);
+	background: transparent;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 999px;
+	color: var(--text-normal);
+	font-size: var(--font-ui-small);
+	cursor: pointer;
+	transition: background var(--curtis-motion), border-color var(--curtis-motion), transform var(--curtis-motion);
+}
+
+.ai-model-picker-btn:hover {
+	background: var(--background-modifier-hover);
+	border-color: var(--background-modifier-border-hover);
+}
+
+.ai-model-picker-btn:active {
+	transform: scale(0.98);
+}
+
+.ai-model-picker-btn.is-open {
+	border-color: var(--interactive-accent);
+	background: var(--background-modifier-hover);
+}
+
+/* Named-agent pill — the model picker chip's sibling in the top bar. Only
+ * rendered while the bound conversation runs a named agent; emoji + name,
+ * so the lane reads as a distinct mode rather than another model. Hidden
+ * via inline display (updateAgentPill), so the stylesheet default stays on. */
+.ai-chat-view .ai-agent-pill {
+	flex: 0 0 auto;
+	display: flex;
+	align-items: center;
+	gap: var(--size-4-1);
+	padding: 3px var(--size-4-3);
+	background: transparent;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 999px;
+	color: var(--text-normal);
+	font-size: var(--font-ui-small);
+	cursor: pointer;
+	transition: background 0.15s ease, border-color 0.15s ease, transform 0.12s ease;
+}
+
+.ai-chat-view .ai-agent-pill:hover {
+	background: var(--background-modifier-hover);
+	border-color: var(--background-modifier-border-hover);
+}
+
+.ai-chat-view .ai-agent-pill:active {
+	transform: scale(0.98);
+}
+
+.ai-chat-view .ai-agent-pill.is-hidden {
+	display: none;
+}
+
+.ai-agent-pill-emoji {
+	font-size: var(--font-ui-small);
+	line-height: 1;
+}
+
+.ai-agent-pill-name {
+	max-width: 160px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+/* Agent editor modal — persona textarea spans the modal column. */
+.ai-agent-editor .ai-agent-editor-persona {
+	width: 100%;
+	resize: vertical;
+}
+
+/* Prompt library picker — name plus a muted one-line content preview. */
+.ai-prompt-suggestion .ai-agent-suggestion-sub {
+	display: block;
+	color: var(--text-muted);
+	font-size: var(--font-ui-smaller);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+/* Harness editor + prompt editor — textareas span the modal column. */
+.ai-harness-editor-prompt,
+.ai-prompt-editor-content {
+	width: 100%;
+	resize: vertical;
+}
+
+/* Narrow panes — the provider sub-label drops so the model name keeps room,
+ * and the composer tightens its padding/radius to fit a sidebar. */
+@container (max-width: 480px) {
+	.ai-model-picker-btn-provider {
+		display: none;
+	}
+
+	.ai-model-picker-btn {
+		max-width: 55%;
+	}
+
+	/* In the top bar the pill shares space with title + three tools — cap it
+	 * tighter than the composer-row allowance above. */
+	.ai-chat-topbar .ai-model-picker-btn {
+		max-width: 42%;
+	}
+
+	.ai-chat-input-area {
+		padding-inline: 10px;
+	}
+
+	.ai-chat-topbar {
+		padding-inline: 10px;
+	}
+}
+
+/* Very narrow panes — the composer CONTROLS yield space before the picker
+ * does: tighter gaps, smaller icon targets, so the model name always keeps
+ * readable room (no dot-and-chevron stubs). */
+@container (max-width: 440px) {
+	.ai-chat-btn-row {
+		gap: 4px;
+	}
+
+	.ai-composer .ai-chat-icon-btn {
+		width: 28px;
+		height: 28px;
+	}
+
+	.ai-composer .ai-chat-icon-btn svg {
+		width: 16px;
+		height: 16px;
+	}
+
+	.ai-chat-send-btn {
+		width: 30px;
+		height: 30px;
+	}
+
+	.ai-chat-send-btn svg {
+		width: 15px;
+		height: 15px;
+	}
+}
+
+@container (max-width: 380px) {
+	.ai-model-picker-btn {
+		min-width: 72px;
+		padding-inline: 8px;
+	}
+
+	.ai-model-picker-btn-model {
+		font-size: var(--font-ui-smaller);
+	}
+}
+
+/* Ultra-narrow panes — the row may WRAP to two tidy lines. Wrapping degrades
+ * gracefully; clipping a control out of the composer does not. Send stays
+ * right-aligned on its line via its margin-left: auto, so overflow is
+ * impossible at any width. */
+@container (max-width: 400px) {
+	.ai-chat-btn-row {
+		flex-wrap: wrap;
+		row-gap: 6px;
+	}
+}
+
+.ai-model-picker-btn:hover {
+	background: var(--background-modifier-hover);
+}
+
+.ai-model-picker-btn:active {
+	transform: scale(0.99);
+}
+
+.ai-model-picker-btn-dot {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: var(--provider-color, var(--interactive-accent));
+	flex-shrink: 0;
+	box-shadow: 0 0 0 3px var(--background-primary), 0 0 8px 1px var(--provider-color, var(--interactive-accent));
+}
+
+.ai-model-picker-btn-text {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	align-items: baseline;
+	gap: var(--size-4-2);
+}
+
+.ai-model-picker-btn-model {
+	font-weight: 600;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.ai-model-picker-btn-provider {
+	font-size: var(--font-ui-smallest);
+	color: var(--text-muted);
+	white-space: nowrap;
+	flex-shrink: 0;
+}
+
+.ai-model-picker-btn-chevron {
+	color: var(--text-faint);
+	flex-shrink: 0;
+	transition: transform 0.2s ease, color 0.15s ease;
+}
+
+.ai-model-picker-btn:hover .ai-model-picker-btn-chevron {
+	color: var(--text-muted);
+}
+
+.ai-model-picker-btn-chevron svg {
+	width: 14px;
+	height: 14px;
+}
+
+/* Chevron flips while the dropdown is open — state you can see. */
+.ai-model-picker-btn.is-open .ai-model-picker-btn-chevron {
+	transform: rotate(180deg);
+	color: var(--text-normal);
+}
+
+/* ============================================================================
+   MODEL DROPDOWN — anchored menu under the picker pill: the active
+   provider's models for one-click switching, "All models…" handing off to
+   the full modal. Floats over the message list from the top bar's stacking
+   context (containerEl).
+   ============================================================================ */
+
+.ai-model-dropdown {
+	position: absolute;
+	z-index: 100;
+	min-width: 240px;
+	/* Never wider than the pane that anchors it. */
+	max-width: calc(100% - 24px);
+	max-height: 320px;
+	overflow-y: auto;
+	padding: 5px;
+	background: color-mix(in srgb, var(--background-primary) 88%, transparent);
+	backdrop-filter: blur(20px) saturate(1.4);
+	-webkit-backdrop-filter: blur(20px) saturate(1.4);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-m);
+	box-shadow: var(--shadow-l);
+	animation: ai-dropdown-in var(--curtis-motion);
+}
+
+@supports not (backdrop-filter: blur(1px)) {
+	.ai-model-dropdown {
+		background: var(--background-primary);
+	}
+}
+
+@keyframes ai-dropdown-in {
+	from {
+		opacity: 0;
+		transform: translateY(-4px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.ai-model-dropdown-item {
+	display: flex;
+	align-items: center;
+	gap: var(--size-4-2);
+	padding: 7px var(--size-4-3);
+	border-radius: 9px;
+	font-size: var(--font-ui-small);
+	color: var(--text-normal);
+	cursor: pointer;
+	transition: background 0.12s cubic-bezier(0.22, 0.61, 0.36, 1);
+	/* Staggered entrance — the menu assembles instead of appearing. */
+	opacity: 0;
+	animation: ai-item-in 0.18s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+}
+
+.ai-model-dropdown-item:nth-child(1) { animation-delay: 0.02s; }
+.ai-model-dropdown-item:nth-child(2) { animation-delay: 0.045s; }
+.ai-model-dropdown-item:nth-child(3) { animation-delay: 0.07s; }
+.ai-model-dropdown-item:nth-child(4) { animation-delay: 0.095s; }
+.ai-model-dropdown-item:nth-child(5) { animation-delay: 0.12s; }
+.ai-model-dropdown-item:nth-child(n + 6) { animation-delay: 0.14s; }
+
+@keyframes ai-item-in {
+	from {
+		opacity: 0;
+		transform: translateY(-3px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.ai-model-dropdown-item:hover {
+	background: var(--background-modifier-hover);
+}
+
+.ai-model-dropdown-dot {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: var(--provider-color, var(--interactive-accent));
+	flex-shrink: 0;
+}
+
+.ai-model-dropdown-name {
+	flex: 1;
+	min-width: 0;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.ai-model-dropdown-check {
+	color: var(--interactive-accent);
+	display: flex;
+	flex-shrink: 0;
+}
+
+.ai-model-dropdown-check svg {
+	width: 15px;
+	height: 15px;
+}
+
+.ai-model-dropdown-more {
+	display: flex;
+	align-items: center;
+	gap: var(--size-4-2);
+	margin-top: 2px;
+	padding: 8px var(--size-4-3) 6px;
+	border-top: 1px solid var(--background-modifier-border);
+	color: var(--text-muted);
+	font-size: var(--font-ui-small);
+	cursor: pointer;
+	transition: color 0.12s ease;
+	border-radius: 0 0 10px 10px;
+}
+
+.ai-model-dropdown-more:hover {
+	color: var(--text-normal);
+}
+
+.ai-model-dropdown-more svg {
+	width: 14px;
+	height: 14px;
+	flex-shrink: 0;
+}
+
+/* ============================================================================
+   MESSAGES — messenger-style bubbles
+   ============================================================================ */
+
+/* ============================================================================
+   BACKGROUND LAYER — persistent wallpaper + brand watermark
+   Sits behind the message list (z-index 0). The messages container is
+   transparent so the background shows through (especially when empty).
+   ============================================================================ */
+
+.ai-chat-background {
+	position: absolute;
+	inset: 0;
+	z-index: 0;
+	pointer-events: none;
+	background-color: var(--background-primary);
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: cover;
+}
+
+/* Wallpaper mode — image fills the panel. */
+.ai-chat-background.has-wallpaper {
+	background-image: var(--wallpaper-url);
+	background-attachment: local;
+}
+
+/* When wallpaper is on, dim it slightly so message text stays readable. */
+.ai-chat-background.has-wallpaper::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.15);
+}
+.is-theme-dark .ai-chat-background.has-wallpaper::after {
+	background: rgba(0, 0, 0, 0.35);
+}
+
+/* (Brand watermark removed — the hero orb now lives in renderEmptyState as
+ * an in-flow element, so it appears on new chat and disappears once messages
+ * arrive. See .ai-chat-empty-icon below.) */
+
+.ai-chat-messages:hover {
+	scrollbar-color: var(--background-modifier-border-hover) transparent;
+}
+
+.ai-chat-messages::-webkit-scrollbar {
+	width: 10px;
+}
+
+.ai-chat-messages::-webkit-scrollbar-thumb {
+	background: transparent;
+	border-radius: 8px;
+	border: 3px solid transparent;
+	background-clip: padding-box;
+}
+
+.ai-chat-messages:hover::-webkit-scrollbar-thumb {
+	background: var(--background-modifier-border-hover);
+	background-clip: padding-box;
+}
+
+.ai-chat-messages {
+	/* Full-bleed scroll layer — messages glide UNDER the frosted top bar and
+	 * composer (the premium chat pattern). The top bar and input area float
+	 * above with gradient/glass surfaces. Sits above the wallpaper layer
+	 * (z-index 0), below the floating chrome (z-index 3+). */
+	position: absolute;
+	inset: 0;
+	z-index: 1;
+	overflow-y: auto;
+	padding: 56px var(--size-4-2) 120px;
+	scroll-behavior: smooth;
+	display: flex;
+	flex-direction: column;
+	gap: var(--size-4-5);
+	background: transparent;
+	/* Scrollbar hides until the pane is hovered — quiet at rest. */
+	scrollbar-width: thin;
+	scrollbar-color: transparent transparent;
+}
+
+/* Empty state — hero brand orb + welcome copy. Rendered inside the messages
+ * container when there are no messages; disappears on first message. */
+.ai-chat-empty {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+	gap: var(--size-4-5);
+	text-align: center;
+	padding: var(--size-4-8) var(--size-4-4);
+}
+
+/* Brand mark — the C. from the frozen identity (curtis-ai-tech tokens.json):
+ * monoline C, aperture right, dot in the surface's writing color. Transparent
+ * PNG inlined as a data URI (plugin releases ship only main.js + styles.css);
+ * the mark floats directly on the theme — no disc, border, or ring, flat per
+ * the Records Office rules. Dark themes paint the ink variant (C #23A45F,
+ * dot paper); regenerate assets/logo-transparent.png from the mark SVG. */
+.ai-chat-empty-icon {
+	position: relative;
+	width: 96px;
+	height: 96px;
+	background: url('data:image/png;base64,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') center / contain no-repeat;
+}
+
+/* Light themes swap to the paper variant (C #0E7A45, dot green-900) — same
+ * geometry, colors for bright surfaces. */
+.theme-light .ai-chat-empty-icon {
+	background: url('data:image/png;base64,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') center / contain no-repeat;
+}
+
+/* Per-message brand mark — the hero glyph as a 20px stamp at the start of
+ * every assistant reply's meta row. Same transparent masters as
+ * .ai-chat-empty-icon (byte-identical URIs) — keep both slots in lockstep
+ * via scripts/inline-logo.mjs. No ring or glow at this size; flat and quiet
+ * inside the message list. */
+.ai-message-avatar {
+	flex: 0 0 auto;
+	width: 20px;
+	height: 20px;
+	background: url('data:image/png;base64,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') center / contain no-repeat;
+}
+
+/* Light themes swap to the paper master, same as the hero mark. */
+.theme-light .ai-message-avatar {
+	background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASAAAAEgCAYAAAAUg66AAAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAAGYktHRAD/AP8A/6C9p5MAAAAHdElNRQfqCgsABhJDWdsqAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDI2LTEwLTExVDAwOjA2OjE3KzAwOjAwNtcTsQAAACV0RVh0ZGF0ZTptb2RpZnkAMjAyNi0xMC0xMVQwMDowNjoxNyswMDowMEeKqw0AAAAodEVYdGRhdGU6dGltZXN0YW1wADIwMjYtMTAtMTFUMDA6MDY6MTgrMDA6MDDm1/o7AAAjX0lEQVR42u2deZhdVZnuf5krAyEQhkQgAQRiAEFRpLkEBQXRi0ZatFW6VVptJ2zb4Trb3XJbuxWkcRYcuqVbUa+IijiD6AUHHEABgcggAYQACZB5qKTSf7z7VHbt7FN1quqcvdba+/09z3mSnEpVrXP2Ou/+1jeCMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxZrxMCL0Akw4zlh7R0f/bcNkNoZdqEsEC1FA6FZOqsGg1EwtQzelQaCYDM7LHbGAOsGvusQswC5gOTAOmApOAicD27LEN6Ac2ARuA9cBaYHXu8SiwJvv6BmDrSAuzMNUbC1CNGEFsJiCBmQvMB/YDFmaPfYG9sq/tioSmD5iChGY85IVpIxKiVcCDwL3A3cDy7M/7s69tQKJWikWpPliAEmcY0ZkFzAMOAhYDhwIHI7HZA5iJLJ8Y2IosppVIlG4DbgZuAW4HVgDryr7RYpQ2FqDEGEZw5gD7A0cCTwKOAB6LxKYv9LrHyCbgIeBO4Abgt8DvgT8hS2onLEhpYQGKnGEEZxqwADgKOA44Glk7uyPfTB0ZAB5GVtGvgZ8B16Hj2+ayb7AgxY0FKFLaCM8s4HHA8cAJwBORPyeWo1TVbEV+o98BVwFXA7dSclyzEMWJBSgi2ojOTOS/OSl7HImcxWZnVqEj2hXZ4w/IoT0Ei1E8WIAioER4JqPj1MnAc5BPx6IzOlYBvwG+A/wIHduGhP0tROGxAAWijbUzF1gCnA6ciCJWZvzcA/wE+DpwDRKnIViMwmABqpgS4ZkAHAIsRcJzJOlGrWJnEzqifR34Fgr3D8k3shBViwWoIkqEZyo6Wp0BPBclBJrquAv4NvBlFN7fkv+ihagaLEA9pkR4pqMo1pnAM7FvJzSrgB8AF6Eo2sb8Fy1EvcUC1CNKhGcG8uu8CngGqq8y8bAWuBL4HArpD4meWYh6gwWoy5QIzzQkPK9BUa2ZoddohmU9ippdgBzXQxIcLUTdxQLURQriMwk4FjgLOBVbPKmxFrgc+CTwS1RUC1iEuokFqAuUWD2HAq8DXoxqsUy6rAS+AnwKFccOYiEaPxagcVAiPHsi5/JrgQNDr890lTvRsewLqEB2EAvR2Blvr5fGUhCfKShj+WPAK1BBqKkXu6Hgwf9CkbM7UXEsUxbtTf+yB0KvL0lsAY2SEqvnEOCtwEuwn6cprEX5Q+cBf8x/wdbQ6LAFNAoK4jMdeCnwCeAUFO0yzWAaSiI9GYXrl5HVmdkaGh0WoA4piM9i4Bzg7ajroGkmewDPQv6+W5HD2iI0CnwEG4GC8EwFXgi8F/XlMabFrcD7ga+RK+vwkWx4LEBtKPH17AO8EzmZZ4Ren4mSDcB/AB8E/jzkCxaiUnwEK6FEfJ6KQrAvQBEvY8qYAjwle9yOWsXqCz6WlWIBKlAQn2nAq1F4/bDQazPJsAAFJjYAN5JlUVuEdsYClKMgPnujM/27UA6IMaNhF9RCd0/UmXE9WISKWIAyCuLzeJR6fwbNbfhuxs9kdBx7PGqE9iBYhPJYgNhJfE4BPoMKSY3pBgchP+Id2cMilNHoKFhJ9frLgA+gUTfGdJv7gXcD/42r64H6DrAbLX0oqfCjWHxM75iPAhpvw32/gYZaQAXLZzbwPtS3Z2rotZlGsAWV8JwNrGk92URLqHE+oIL47Al8GLXPsLPZVMUk4BhUxvNzsvavTfQLNUqACuLTMof/hoZagiYoE9Bo7f3RjPt10DwRaowAFcRnPxRmf37odZnGcxiKkl1Ddhxrkgg1QoAK4rMA+DSaxWVMDDwOWITGAjVKhGovQCWWzwWoSbwxMXFI9miUCDUpDP8YFHn436EXYkwbTgU+ToNSQWrrfC2Jdn0C+KvQ60qMfjQXaxOK1GzM/t2POgBuQ3toUvaYggp4p6OWJX3Zv91BYHR8FXgDWYMzqG+Ivgmh59moP4vFp5wB1ON4JXAvcA+wPPv7A9nzjyIB2oQEaGv22J79jJYItQSoDwnQHNQ1cG9gX2AhOgbvmz2/C82ywjvlRSgq9hZyeUJ1pJYWUM766UOlFW/CG73FJlQSsAy1irgRuA0JzqOoanv7WH/4CExAk2F3Qw3eDkaFmo9HTtj5OEO4xQDwEeA96JrV0gqqnQDlxGcSSnk/m2ZnOA8AK5DQ/AK4FrUPXUG2sYdjvJu+pLlbGX0oKW8xqh4/FonSPJp949gC/DNwLlntWN1EqFYCVNjsZ6JEwyaOytmGjlG/AK5AonMX8uGUUvXGHkGYpqMEvWPYMYtrIQ2I2pawFngjGogI1EuEaiNAhQ39THTBGhNNyLgPJbRdnv15N7mq6zyxbeJhBGkSyt1agoY/LkERzSZxP7qh/rD1RGzXb6zUQoBKmoldDBweel0VsRm4HvgG8F3k2+kv/qfUNmwbQZqCfEWnAqehUoamzGO7CQ2/vKn1RGrXtIzkBaiwUfcC/gs1Fas7jwA/RmL7E+Dh4n+owwaFtmI0F3ga6lr5dJrRNvf7wMvJOitC+te4TgI0DVW2vyH0mnrMg8C3gYuAXyELaJDUN+RIlIjRNOS4fjkqr9kr9Bp7zMdRcGUzpH+9kxagwmZ8LXA+9Q3jrgQuBT4P/JaCbyf1jThaSoRoEhqX/EpUZLxH6DX2iE3Am1FJEZD2ta+LAD0V+DL1dE6uBS5D1fvX0nDhKdJGiP4CeB2wlHpGQf+M/EFXQ9p7IFkBym28fYCvoOhIndiGfDvno1B6o45ao6XN0exklIR6AvUL4V8DvJhsAmuq+yFJAcpttinAv1M/v8/tKIfpi8jZPEiqG60qSoRoN9R07o2o706d+ATwVrJZ9CnujeTuCoUN9hLgH6lPpvNG4EvA3wPfIZepvOGyG2rfmqEb9C97gP5lDzBl0d6tpzYhZ/2VqAxkEfUpjj0M3axuar321EhOgHIbazHwSerj97kFRTfOQWUSg6R4ZwtNQYQAHkJh7DvR3tkz9Bq7wFTgscD3gNUp9g9KSoBy1s909EF9eug1dYF+1H7hLOAqCvOiUttQMVFiDW0DbkDW0O6oE2FSn4ES5gGryBzSqe2XZHxAhaPX36K2qqlnwa4APgR8lmx2ONji6RWFPTQT+DvgnahdSMrcDDwLtVJJav+kWGl8CBoimLr4/AY5Rz+CxacSCu/tevTe/zXKq0qZRcBJoRcxFpIwPwtRr/eTdqnFduASlKcyuPF93KqGkmPZn1BJy2OQbyiZU0GOiShN41vAQEr7KDUL6Nko8pUqm4DzgFcDd7SetNVTPYX3/HZ0Tc6jgx5JkXIU8gclRfQClLN+9kRRolQzWx9B/ob3oM6DgMUnJIX3/hF0bd5F7vokxHzgwNCLGC1RC1BJg7HjQq9pjNyPcns+RpY0BhafGChcgy3AR9G1WjGmHxiOGcABoRcxWlJpSn8oKjZN8Xy+HG3ob7eesPDERet6ZDe87SgDfQ26YSwMvb4OmUCC0bxoLaBCb+fXkaB5ifw8f4fFJwkK1+Yy5Be6M/S6RsGs0AsYLdEKUI5jUdFdatwBvAb4UesJi0/8FK7RD0lPhJIiSgEqNBl7Pen1dlmOrLYrW09YfNKhcK2uRNdyeeh1dcC60AsYLVEKUI4TUSPylGg5nG35JEyJJfRG4nZMb0eDJJMiOgHKWT8z0BEmpbD7oyhVwD6fGlDiE3ob8YboN6CkyqSIToBynIgaSqXCJjQE8eLWExaf9Clcwy+haxxjsuL9JOirikqACtXur0IFgymwHTWH+lT2d4tPjchdy+3oGn+C3o2vHivXEfcRsZSoBCjH8WgiZipcgmbQJ9uZzgxP7ppuAf4V+HroNeXYhnod9Y/3B1VNNAKUs36moqznVHw/vyXd9H0zNh5B1zyWKvplqG94ckQjQDmejEYrp8AK4B24sLQRlBSwvpM4Ik8Xk2AvIIhPgCagave5oRfSAf2omZhzfRpE4RpfAXyQsEef36FpwEkShQDljl+HoOmWKfA11MkQsPg0icK1/izaCyFYj26CSVo/EIkA5VhKGsV/twD/QtbJMMULb8ZH7pqvB94HXB9gGRcSlzN81AQXoJz1Mxc4PfR6OmAjioLcGnohJhpuQ+OSq0wE/CqKvPZDujfB4AKUYwlwZOhFdMBXyZncqV54M34K1/6nqGasimTAS5DgPVyyjqSIRYAmI+unL/RCRuB24FyyMckpX3jTHQp74AfAy4Bre/TrNqNZeK9Dmc/JE1SAcsevg1DpRcxsQw2qbg69EBMXBRH6GfAi4AJgbRd/zR/RCPL/A6xs87uTIxYL6GRg39CLGIGfoE55QPoX3nSXwn5YjqrnX4Kmlq4fy8/MuBc4HwVoPkdhXHfqBGtxmrN+ZgKXEnfy4Vq0mb7TeqIOF990n0Ifc1CXwiXAX6ISo4Wo00M7BlCm9c2ovOKy7O8D+f9Ul/0XgwAdje4SMScffgl4Jfb9mA4pEaKJaGzOYuAw1EB+L1R4PYB6UN+Hjlo3IX/jmuIPqdvei6Ep/UnELT4rUQW0xcd0TH6fZGI0gATmPnZkz09khxEwQJsK+zrvudACNIv4R8peSu+iGqYBlIhRi4FOvqfOBDmC5S7Ck9E5N1YL6EFUGvIraM6mMKYqQkfBjide8QE5AGNpuWBM7QgpQNOIO/fnEVRlvA1s/RjTC0IK0ALgCaHfgGH4MdnRyxjTGyoXoJz/5yhgfug3oA2bUZMnR76M6SEhLaDjCB+Fa8f1KPPZGNNDQgnQHJSAGCvfoAaVxsbETqUClDt+7Y8KUGPkPuC7oRdhTBMIZQEdCewe+sW34Ro0ZcDWjzE9JpQAPSng7x6ObcDlJDhfyZgUCSECs4i38+FyZAEZYyoghADNBw4M/cLb8HPgbvDxy5gqqCwMnnNAPxbYI/QLL2EAVSlvC70QkwYlLTc6wje3HYTIwzmUOHs/r8BV72YEhhGdSai3zzR0stgObEUdDDeV/QwLUfUCNAEJUIzcCNwF3hhmKG1EZyrqbngkKik6GDUc2xWJ0ABqxboK+Rb/gBJcb8meG/Jzm7rnqhagGcSb//MLNPPLmEFKxGcv1MP8NOAY5NPs9HO0BqV4XIGSXa9HVhIzlh7RSBGqWoDmEmfz+U34+GVylAjPXOCvgFcgi2csn53ZqALgaOBVqMf4hWjvbW/i0azqKNg84nRA348nnZpyJiCL5xLg46iJXjdu3HsCZwLfRGO+9259YazO7RSpRIByb+gCNAUjNpYhJ3Sj7j5mZ2YsPSK/X3cB3g18GTgBOZq7zd7Ae4CvoCPd4DqaQNUW0P7EWQF/I4VIhWkehQ/9XsBHgbOppmvnCagFzGlt1lNLqhagBaFfcAkDSIBMgyl82OehEch/S2+snnYciHxCL26zrtpRpQBNJk4H9FrgttCLMNEwB/gw8IJAv38vNAn11NYTdRahKgVoBnpzY2Ml8Gew/6ep5D7gk4G3A2cEXtI84DzirZnsGlULUIwTMO5FDehNAylYF6cBbyDgxOAci4D3I4ustlZQlQI0G2WJxsY9KGPVNJsFKOK1S+iF5Hg28kMB9RShKgVoDqqViY3ltBmJaxrFK4Enhl5EgUnA64FDQi+kV1QpQLsSZxHqvaEXYMKQsygWAS8NvZ42HAS8LPQiekXVR7ApoV9wgX7ggdCLMME5HTgg9CKG4QWo8LV2x7CqLaDY2rBuRlEwR8Cay+7A0tCLGIGDgWeEXkQvqNoCiiG6kGczsDr0Ikz15CyJJwCHh17PCEwEnkV8J4iuvLCqiLEGbD2OgDWd44hzbxY5CngM1OsY1nMByr1ZM0K/2BI24hqwJjOF+CJf7ZiPjmK1okoLaFroF1vCZmBL6EWYYOyKepSnwAxqGI6vUoCmhn6xJfTjGWBNZnfizM5vR4zF3OOiSgGqsqq4U7biKRhNZjZp+H9axNjMb1xUKUCxheBBrTicBd1cppFWZGkm8UWSx0WMomCMaQhVCtBA6Bfb5vXX6o5iRsVm0vIBrqdmFnuVAhSjr2UycfqmTDWsIa08sJWhF9BtqhSgGMPdU0jLB2C6y8NkQwITYXnoBXSbKgVoc+gXW8I04kwPMNWwGrgj9CI6ZAM1bB3ccwHKFXluCP1iS5hOnD2KTDX0A9eFXkSH3A/8MfQiuk2VFlCMZ+2ZxFkiYqrj58C60IvogOuQCNWqc0OVArSG+Dz4fcTZJtb0mNyH+HfAH0KvZwQGgO+TVsSuI6oUoNXEF4qfSpZdWqcKYzMqHgYuC72IEbgNuDL0InpB1RZQbAo+BY1AMc3m68CfQi9iGL5GFgGr0/ELqreAYmx9sU/oBZgw5D7My4D/Dr2eNtwe8drGTZUC9ChxRsIW4mxoA58Drg+9iALb0Ijo2kW/WlR9BFsT+gWXsIC0KqJNb7gH+AAa1R0L3wO+0PpH3Y5fUK0AbSDOrNN9gN1CL8KEofCh/hbwceIIliwD3otODrUUH6hegB4M/YJL2IPMD+RIWDPJfbi3AucAFwde0grgrcDvA6+j51QpQFuJcwjgLtSw164ZM6uBtwGXBPr9DwBvAr7TeqKu1g9U3w8oxmK6icDjQy/ChKXwIV8BnAV8nmq7ONwJvBb4apt11Y4QArQ19Isu4fHEOTbaVEjhw/4gskT+iWp8lz8BzgC+2WY9taSSXjj9yx5gyqK9AWYBLya+D/sklIz26JRFe9O/zNOam0r/sgfy+3ULcA0Kz++LIqbdvmmvAD4CvB05noFmiA+oIVeVrEBNlWKrv5oPLAbuCr0QEx3bgR+hYtAXAq8EjmT8faQeAi4HLgR+Ra5OsiniA9UL0CrkiI5tFlMf8BSUd2HMoAjkIqOrgAuAS4GTgNOAY9DNq1MxWgPcigTtm6gQdtAl0SThaVG1ALWaKj0t9Asv4VjUG2hj6IWYeNhw2Q3F9IwHUZj+a8D+yBo6Eg0NnIes+2nIeb0eCdfdwE3oKHcLKoDd6fc0kcpKEHIX8S3AeaFfeAn3oTvbLdDcDWGGZ5hcsUnoBjY1+/t2ZN1sok0NpPdY9RYQwM3ogsTmiJ6HTOpbQi/ExEteNApitI0OG5tZeHZQaRFmdsEOAq5CUYXY+BLwcmCbN4kxvSfEYMIVxNsI/Fiy+dsuyzCm94QQoHVArObFQmBJ6EUY0xRCjWb+LXFUHBeZBDwHzwozphJCCdDvKQlFRsISYBH4GGZMr6lUgHKO3T8R75C1xwCnhl6EMU0glAW0GvhN6Bc/DKcBc8FWkDG9JJQAAfyMOCvjAZ5InNnaxtSKygUodwwbnPQYIdNQa4RpYCvImF4R0gK6m/imEOR5OipQNcb0iJACtBk1YYqV3VBW9CSwFWRMLwgpQABXE+ekjBbPBZ4UehHG1JVgA/kyi2IWGoXy9NBvxDB8Bng9WW9g14iZ8dCpJd2UfRaiGj7POtScKWYBej7wXyhqZ8yoGUZ0JrLDCBgg1xUx/z11FqPQFhDA0agT4dzQb8YwXAy8Avmtar0hTHcoEZ2JqOXLYuAw4ABgL9RDaAB1S7wPjWG+Cc2E32mScN32XgwCNAO1uTwl9JsxDOuAl6AevkD9NoLpDiXCMwuV9/wlcDwqeJ4xzI8YAB5BfbO+D1yW/X1I7WRd9l8lUzHKyE0e6EcRp2eHfjOGYSq6e11O1rLVkzNMkYL4TEF7+lw06PBYYE9GLnSegARqIfAMYCnqnXUXuYBNXaa3BBMgoCVAIFPzecQ3LSPPApQ4eW1r7XXYAKY7FMRnIfAB4Gx03Jo6jh89G4nXM1En0ZvJKgjqsAeDClDOCnqEHc29Y2Uiajx+BRqpkvzFN92hID7HAZ9F9YTTuvhr5iI3xR5ojM8GSF+EggoQDFpB27PHaYSPzA3H7uhM/31ga+oX34yfgvicAnyO3o36noyy8w9EAxPXQdo3wlgECDSw8BnE2Ss6zyLUUvaG1vpT3gBm7BTE52nI8jmwgl99KPqc/BjYmPIeDC5AuWPYRmAOOuvGzBQUSv0xEs1kL74ZH7mb58HI8llc4a8/HO3Fq4CBVEUodClGkctIYzzyYuAfgZngOrEmkrvmM4H3oRYuVfMa4PTQ78V4CG4BwRAr6GFkwh4Tek0d8DjkPP8l+CjWJAo3nDcA/0CYz9JUNObqu8CaFPdgbBbQduDLxF2g2mIK8A40TRWwJdQECtf4JLQHQg4xeALwsoC/f1zEJkCgiRk/CL2IDtkb+CC6CwEWoTpTuLYHAR9CeyA0ZwD7lawxeqIRoFxq+RbgImBt6DV1yJOAf0PZ3KYZ7IZuPEeFXkjGInKWeEpEI0AFrgauDL2IUXA68B6yjNfU7kJmZHLXdCq61s8PvaYck4BnkeA8u6gEKGcFbURhzXWh19QhE4CzUN+gCWARqhO5a9m6zm8gYCF3G45C9YpJEZUAFbgKlT2kQh/wz8Bft56wCKVP4Rr+DfBPdLfEolvMp5okyK4SnQDlrKANwAWk4wsCJVKeiyqYAYtQyhSu3fOAc9A1jpEZqMdQUkQnQAV+Qq4HTyLMAz5GLqPbIpQehWv2THRNYz7iTCCOiNyoiFKAclbQZuCTZCUPCbEQ+DSqbQMsQilRkuvzadSOJXZmhV7AaIlSgAr8EiUnpsaBqKG9LaGEKKluv5AEfSupEK0A5aygbegOdEfoNY2BlgjZJ5QAJT6fz5CW+KQSNR4kilqwdhRadUxF5nBs4c+RmAOcCDwA3Nh6XSnW7dSVGUuPyO+1CcBLgY8C+4Re2yjYjoYn/C6lfRWtBQQ7Nd6+iHRH48wDPo6KFgfbc9oaCk/hGkwF3kT8DucyNgB/Cr2I0RK1BQRDKuU3oCLV5xBnHsZI9AEnoB6/v0b9fW0JBaQgPrsB/xd4Fwk6c4G7gY8Aa1LaT1FbQCV8D5mZqdIHvAX5FlzAGpCSwtLPAm8mzZsbwHXAitCLGC3RW0AwxAoaQIPbTkIjTlJkAmqpeRxwZ/awX6giCv4e0F66EKVMpOZfbLENOB91kkhqD6VmAYEE6ByyI0zCPAn4Irrrzmw9aWuodxTe25novf8i8VS1j5VlpFW2NEgSFhAMsYJAb/iBxD3GpxNmAU9HR4A/kCVc2hrqLiVWz2LgwygoMDv0+rrAR8kqBlKbmJqMAMEQEdoK3ILM5lSPYi0moTEuzwBWIwtvcPCchWjslAhPHxqx/QmUGpHU/m/D75DjfDWkdfyCBC9AITfoEdQHZTyTJ2NhTzTK9wDgNrLhh63XnNrGCk3JUfYw1ETsHahyvA6sB95Jlp6SmvUDCQpQ4Sh2K7AXaTSx74QpqMfvKdm/byObRW9rqDNKrJ7dgVcjJ+2JJNi0axguRMevbZCe9QPpev3zd7h9gK8AS0KvqctsA36Kcjt+iApzB0nxbtdLSiyeaagO783AU0nwZjsC1wAvAu6DdPdDsgIEQzbd8ahgNaXU+U5Zh+alfQq4lsw/1CLVjdctSoRnMrKIzwKeS5pJhSPxZ+TLuhrS3gNJ3xVypvbdKFP6JOKeLT8WpiIn9VLgscCDqK5soPUeNPFoVnLUmgwcjQZGno1EqA6+wSKbgHcDl7aeSPnaJ20BwZA74DTUjfDvQ6+pxzwEfBvVxv2KQj5UynfDTiixePqApwAvRxZP6lHRkfgY8HayI3nq17tOAgRySF+EImN151E0n/5i1Dlyp2GOqW/OFm2SM+ei2rozUC7VnNDrrIDvAWciKxhI/xonL0Cw0wY9HPmDDg+9rorYjHJBvoFG9C5Ds9WGkNpGbSM6U9EMrFOB01DEMNXardFyI/L7/KH1RGrXtIxaCBCU9vD9AvXJ9+iU+1F05PLsz+VkIdoisW3eYUpQJqN2qEtQJ4QlNO+63ocsnx+1nojt+o2V2ggQ7LSJz0Tn5V1CrysA25D4/AINeLwW9YrZ2O4bqt7QI9S8TUcJmcegDPFjUZ/tpIMmY2QN8EbkWgDqIz5QMwGCIRt7EvA2FBGpYzSkUwZQm4abkCBdixI4VzCMILUY72bvsLh2OmoAthg5lI9FR+h5pFkw3S22oDlk55JFPeskPlBDAYIhm74PeD9KRmvyRs6zCR3V/oj8CjeijOt7UWnLBrLN3gMmovlVuwH7AocgoTki+/s8dM2MrsH5wHvJIp11Ex+oqQDBEBGajS7kK0KvKVIGULLjQyjB7R50fLsX5RutRBG3DeiDsBnoR8e87dnPmIAszinIKdyHhGYOsAcSln2RL2cBShjdAyUJ+sZQzueAt6IjWC3FB+qXtFfGGlSAOBOlrpuhTEQiPRslOubpR8eATUiANrJDgLYyVIAms0OApiMB6kPH3zrVX1XBV1GF+5rQC+k1tbWAWuQsoflovM/zQq/JmGH4JvA6svaqdbV8WjTJ/L0fZUl/J/RCjGnD5WiPJtfbeazUPqxZaN+xBuXHHJI9jImFy4HXI98bUH/rBxogQLCTCK0G/j/ydzwu9NqMQceus2iY+EBDBAhKLaGfAvuhTnnGhOIr6Nh1X+uJpogPNEiAYCcRWoeKOOeimqLaO+RNVAwAn0eh9toUl46WRgkQ7CRCG5AI9aExOY17P0wQtqBOl+9ByZ9A88QHGn7XL2RMvwk1empi7ZipjjXAv6JezrXNcO6UJoXhh2MTqrd5IwrXG9ML7kN77FzSH6zZFRptAbUoFEyeDPw7zeknZKrhRuTvqV1LjfFgnwc7+YXuRM2+D0QTS40ZL98DXgP8svWExUdYgDIKIvQgulP1ofHPTaiZM91nE5pm8lbgrtaTFp8dWIByFERoPeq5/ADwROoxQ9xUx59RUONcckWlFp+hWIAKFERoG/Ab4NfAwaiVhDEjcTUqq7iUXEtci8/OWIBKKIgQaO7YD1FbicNpdodF0571aFzym8g1jweLTzscBRuBQoRsCvBC1KVucei1mai4BfgX4BLULwmw8IyEBahDCkL0OHS+fyFuIdp0NgH/D/g31GsbsPB0io9gHVI4lq0Evo8iG4uo/zROU87NqHPhh8j18LH4dI4FaBQURGgrGgj4I3YMzGvKkLymswb4T+AfUKR0a+sLFp/R4SPYGCnxDT0LjQE6Dpe41JUB1NDuXOAH2NczbixA46Bk5tWewMuB17Jzg3eTNnegnuIXoSP4IBafsWMB6gIlQrQYNRZ/MfYPpc5DwJeBC1CkaxALz/ixAHWRghBNAv4CJaQ9B2dSp8Ya1Kf5k6iGa3BYo4Wne1iAukyJNTQNOAEVI56MhvGZeFmHAgsXoLa9m/NftPh0FwtQjygRounAicCrgJNw47PYWAtcgSaSXoWGMA5i4ekNFqAe00aIlgBnAqegntQmHCtRROsiFOGy8FSIBagiSoRoKnAU8BJgKbB/6DU2jLuAy5CD+bfkQupg4akKC1DFlAjRBFRpvxQ4HU3ocHlHb9gEXA98Hfg2cBs75tsDFp6qsQAFokSIQMexJcDzkb9ov9DrrAn3oIzlS9Ex6+Hif7DwhMECFAElYjQJtYM9GYXwn4x9RaNlFerldDmKat1OrjcPWHRiwAIUEW2sohnAoShydjJqEWsxKmcV8HskOFegYtENxf9k4YkHC1CktBGjWajo9Xh0RHsC8Bia27N6Kxp1cz0aMHk1sAzl8gzBohMnFqDIaSNEoATH/VAk7TjgaHRsm0t9i2EHkJVzO2qT+zPgOuTj2Vz2DRaeuLEAJcYwgrQrcABwBBozfQQqiN2TdKNqG1Gezh3ADcincwMKoa8u+wYLTlpYgBJnGEGaCcxHIrQY+ZEOBvYF9kDHuViObv2on/JK4F4UHr8ZFX/ejpp9rS/7RgtO2liAasQwYtRiJrA7EqYF2WMhEqW90PFtV5St3YeSJScy9n2yHR2btqAcnI3IclmFxh3dixr+L8/+XIFC5OuH+6EWnfpgAao5HYgSyBKajgRqF2AOEqJdURX/7OxreWGaxA5f03bkEM4LzXpUUb469+ejqOZqPYpObRthXRabmmMBaigdClNlWGiaiQXIdEynomUxMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxpjq+B8jR98UTLcpCQAAAABJRU5ErkJggg==') center / contain no-repeat;
+}
+
+.ai-chat-empty-title {
+	font-size: var(--font-ui-large);
+	color: var(--text-normal);
+	font-weight: 700;
+	letter-spacing: -0.01em;
+}
+
+.ai-chat-empty-hint {
+	font-size: var(--font-ui-small);
+	color: var(--text-muted);
+	max-width: 280px;
+	line-height: 1.5;
+}
+
+/* === ONBOARDING — first-run panel inside the empty-state hero === */
+.ai-onboard {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--size-4-2);
+	max-width: 360px;
+	margin-top: var(--size-4-2);
+}
+
+.ai-onboard-line {
+	font-size: var(--font-ui-small);
+	color: var(--text-muted);
+	line-height: 1.5;
+}
+
+.ai-onboard-faint {
+	font-size: var(--font-ui-smallest);
+	color: var(--text-faint);
+}
+
+.ai-onboard-actions {
+	margin-top: var(--size-4-2);
+}
+
+.ai-onboard-btn {
+	font-size: var(--font-ui-small);
+}
+
+.ai-onboard-progress {
+	font-size: var(--font-ui-smallest);
+	color: var(--text-faint);
+	font-variant-numeric: tabular-nums;
+}
+
+.ai-onboard-progress.is-hidden {
+	display: none;
+}
+
+.ai-onboard-chips {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: var(--size-4-2);
+	margin-top: var(--size-4-3);
+}
+
+.ai-onboard-chip {
+	font-size: var(--font-ui-smallest);
+	color: var(--text-muted);
+	background: var(--background-modifier-hover);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-m);
+	padding: 4px 10px;
+	cursor: pointer;
+	transition: color 150ms ease, border-color 150ms ease;
+}
+
+.ai-onboard-chip:hover {
+	color: var(--text-normal);
+	border-color: var(--background-modifier-border-hover);
+}
+
+.ai-onboard-skip {
+	background: none;
+	border: none;
+	box-shadow: none;
+	color: var(--text-faint);
+	font-size: var(--font-ui-smallest);
+	cursor: pointer;
+	padding: 0;
+	margin-top: var(--size-4-2);
+}
+
+.ai-onboard-skip:hover {
+	color: var(--text-muted);
+	text-decoration: underline;
+}
+
+/* === RELEVANCE PULSE — "discussed in …" hint under the header === */
+.ai-chat-pulse {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--size-4-1);
+	margin: var(--size-4-1) var(--size-4-2) 0;
+	padding: 3px var(--size-4-2);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-m);
+	background: var(--background-secondary);
+	font-size: var(--font-ui-smallest);
+	color: var(--text-muted);
+	z-index: 3;
+}
+
+.ai-chat-pulse-label {
+	cursor: pointer;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.ai-chat-pulse-label:hover {
+	color: var(--text-normal);
+}
+
+.ai-chat-pulse-close {
+	padding: 2px;
+	height: auto;
+	width: auto;
+}
+
+/* Message container */
+.ai-message {
+	display: flex;
+	flex-direction: column;
+	max-width: 80%;
+	animation: ai-message-slide 0.25s cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+
+@keyframes ai-message-slide {
+	from { opacity: 0; transform: translateY(8px) scale(0.98); }
+	to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.ai-message-user {
+	align-self: stretch;
+	align-items: flex-start;
+	max-width: 100%;
+	/* A terminal echo doesn't animate in — the line you typed simply
+	 * commits. (The shared slide stays for assistant messages.) */
+	animation: none;
+}
+
+.ai-message-assistant {
+	align-self: flex-start;
+	align-items: flex-start;
+	max-width: 88%;
+}
+
+/* Tiny meta row — only used for assistant model name */
+.ai-message-meta {
+	display: flex;
+	align-items: center;
+	gap: var(--size-2-3);
+	font-size: var(--font-ui-smallest);
+	color: var(--text-faint);
+	padding: 0;
+	margin-bottom: var(--size-4-1);
+}
+
+.ai-message-role {
+	font-weight: 500;
+	color: var(--text-muted);
+}
+
+.ai-message-role-dot {
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: var(--provider-color, var(--text-muted));
+	box-shadow: 0 0 6px 0 var(--provider-color, transparent);
+}
+
+.ai-message-time {
+	color: var(--text-faint);
+	font-variant-numeric: tabular-nums;
+}
+
+/* External links — small site favicon leads the link text (Settings → Chat
+ * UI → Link favicons; the image removes itself on load failure). */
+.ai-message-content .ai-link-external .ai-link-favicon {
+	width: 13px;
+	height: 13px;
+	margin-right: 3px;
+	vertical-align: -1.5px;
+	border-radius: 3px;
+	object-fit: cover;
+	background: var(--background-primary);
+}
+
+/* Plain vault paths the assistant mentions ("Projects/Ideas.md") become
+ * tappable links with the native page-preview popover on hover — styled
+ * like Obsidian's own internal links so the affordance reads as familiar. */
+.ai-vault-link {
+	color: var(--link-color, var(--text-accent));
+	text-decoration-line: underline;
+	text-decoration-thickness: 1px;
+	text-underline-offset: 2px;
+	cursor: pointer;
+	border-radius: 2px;
+}
+
+.ai-vault-link:hover {
+	color: var(--link-color-hover, var(--text-accent-hover));
+	background: var(--background-modifier-hover);
+}
+
+/* Floating jump-to-latest — shows when the transcript is scrolled up while
+ * content (usually a stream) is growing; smart autoscroll leaves the user's
+ * reading position alone and this is the way back down. */
+.ai-chat-scroll-btn {
+	position: absolute;
+	right: var(--size-4-3);
+	bottom: calc(132px + env(safe-area-inset-bottom));
+	z-index: 4;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 34px;
+	height: 34px;
+	border-radius: 50%;
+	background: var(--background-secondary);
+	border: 1px solid var(--background-modifier-border);
+	box-shadow: var(--shadow-s);
+	color: var(--text-muted);
+	cursor: pointer;
+	opacity: 0.92;
+}
+
+.ai-chat-scroll-btn:hover {
+	opacity: 1;
+	color: var(--text-normal);
+}
+
+.ai-message-info {
+	font-variant-numeric: tabular-nums;
+}
+
+/* === MEMORY CHIP — "N memories" badge in the assistant meta row === */
+.ai-message-mem {
+	display: inline-flex;
+	align-items: center;
+	gap: 3px;
+	color: var(--text-faint);
+	cursor: pointer;
+	padding: 1px 5px;
+	border-radius: var(--radius-s);
+	transition: color 150ms ease, background-color 150ms ease;
+}
+
+.ai-message-mem:hover,
+.ai-message-mem:active {
+	color: var(--text-muted);
+	background: var(--background-modifier-hover);
+}
+
+.ai-message-mem .svg-icon {
+	width: 12px;
+	height: 12px;
+}
+
+.ai-message-mem-count {
+	font-variant-numeric: tabular-nums;
+}
+
+/* Facts popover — in-flow panel under the message that opened it. */
+.ai-mem-popover {
+	align-self: flex-start;
+	max-width: 88%;
+	margin: -2px 0 10px;
+	padding: var(--size-4-2) var(--size-4-3);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-m);
+	background: var(--background-secondary);
+	display: flex;
+	flex-direction: column;
+	gap: var(--size-4-2);
+}
+
+.ai-mem-popover-row {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.ai-mem-popover-fact {
+	font-size: var(--font-ui-small);
+	color: var(--text-normal);
+	line-height: 1.45;
+}
+
+.ai-mem-popover-fact.is-removed {
+	color: var(--text-faint);
+	font-style: italic;
+}
+
+.ai-mem-popover-meta {
+	display: flex;
+	align-items: center;
+	gap: var(--size-4-2);
+	font-size: var(--font-ui-smallest);
+	color: var(--text-faint);
+}
+
+.ai-mem-popover-link {
+	color: var(--text-accent);
+	cursor: pointer;
+}
+
+.ai-mem-popover-link:hover {
+	text-decoration: underline;
+}
+
+.ai-mem-popover-footer {
+	border-top: 1px solid var(--background-modifier-border);
+	padding-top: var(--size-4-2);
+}
+
+/* === USER PROMPT ECHO — a terminal line, not a bubble. The caret you were
+ * typing with becomes the `❯` prompt glyph the moment you send: your line
+ * commits where it is, nothing pops in, nothing is re-typed. === */
+.ai-message-user .ai-message-content {
+	background: transparent;
+	color: var(--text-normal);
+	padding: 2px 0;
+	font-size: var(--font-ui-small);
+	line-height: 1.5;
+	overflow-wrap: break-word;
+	word-break: break-word;
+	white-space: pre-wrap;
+}
+
+.ai-message-user .ai-message-content::before {
+	content: '❯ ';
+	color: var(--curtis-neon, var(--interactive-accent));
+	font-weight: 600;
+}
+
+/* === ASSISTANT — document text, not a bubble: plain markdown on the pane,
+ * delivered under the streaming neon caret, terminal-style. === */
+.ai-message-assistant .ai-message-content {
+	background: transparent;
+	color: var(--text-normal);
+	padding: 2px 0 4px;
+	font-size: var(--font-ui-small);
+	line-height: 1.55;
+	overflow-wrap: break-word;
+	word-break: break-word;
+}
+
+/* A wallpaper behind the pane would make plain document text unreadable —
+ * bring back a quiet card for assistant text only while one is active. */
+.ai-chat-view.has-wallpaper .ai-message-assistant .ai-message-content {
+	background: color-mix(in srgb, var(--background-primary) 92%, transparent);
+	backdrop-filter: blur(12px);
+	-webkit-backdrop-filter: blur(12px);
+	padding: 10px 14px;
+	border-radius: 14px;
+}
+
+/* Markdown rendering inside assistant bubbles */
+.ai-message-assistant .ai-message-content p {
+	margin: var(--size-4-1) 0;
+}
+
+.ai-message-assistant .ai-message-content p:first-child {
+	margin-top: 0;
+}
+
+.ai-message-assistant .ai-message-content p:last-child {
+	margin-bottom: 0;
+}
+
+.ai-message-assistant .ai-message-content ul,
+.ai-message-assistant .ai-message-content ol {
+	padding-inline-start: 1.5em;
+	margin: var(--size-4-2) 0;
+}
+
+.ai-message-assistant .ai-message-content li {
+	margin: var(--size-4-1) 0;
+}
+
+.ai-message-assistant .ai-message-content li::marker {
+	color: var(--interactive-accent);
+}
+
+.ai-message-assistant .ai-message-content h1,
+.ai-message-assistant .ai-message-content h2,
+.ai-message-assistant .ai-message-content h3,
+.ai-message-assistant .ai-message-content h4 {
+	margin: var(--size-4-3) 0 var(--size-4-2);
+}
+
+.ai-message-assistant .ai-message-content code {
+	font-size: var(--font-monospace);
+}
+
+.ai-message-assistant .ai-message-content :not(pre) > code {
+	padding: 1px 6px;
+	background: var(--background-modifier-hover);
+	border-radius: 4px;
+	font-size: 0.88em;
+	color: var(--text-normal);
+}
+
+.ai-message-assistant .ai-message-content pre {
+	position: relative;
+	margin: var(--size-4-2) 0;
+	padding: 0;
+	background: var(--background-primary);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 12px;
+	overflow: hidden;
+}
+
+.ai-message-assistant .ai-message-content pre code {
+	display: block;
+	background: transparent;
+	padding: var(--size-4-3);
+	font-size: var(--font-ui-smaller);
+	line-height: 1.55;
+	overflow-x: auto;
+}
+
+.ai-message-assistant .ai-message-content blockquote {
+	border-inline-start: 3px solid var(--interactive-accent);
+	padding-inline-start: var(--size-4-3);
+	margin: var(--size-4-2) 0;
+	color: var(--text-muted);
+}
+
+.ai-message-assistant .ai-message-content a {
+	color: var(--text-accent);
+	text-decoration: none;
+	border-bottom: 1px solid transparent;
+	transition: border-color 0.15s ease;
+}
+
+.ai-message-assistant .ai-message-content a:hover {
+	border-bottom-color: var(--text-accent);
+}
+
+/* Streaming cursor — the same terminal caret, in brand neon. */
+.ai-message-streaming .ai-message-content::after {
+	content: '▍';
+	display: inline-block;
+	animation: ai-blink 1.1s infinite step-end;
+	color: var(--curtis-neon, var(--interactive-accent));
+	text-shadow: 0 0 8px color-mix(in srgb, var(--curtis-neon, var(--interactive-accent)) 55%, transparent);
+	margin-inline-start: 2px;
+	vertical-align: baseline;
+}
+
+@keyframes ai-blink {
+	0%, 100% { opacity: 1; }
+	50%      { opacity: 0; }
+}
+
+/* Thinking state — no bubble, no dots, no label: just the terminal caret,
+ * blinking in brand neon, waiting for the first chunk. When streaming starts
+ * the same caret remains and text flows in behind it — one continuous
+ * gesture, not two different indicators. */
+.ai-message-thinking .ai-message-content {
+	background: transparent;
+	padding: 2px 0;
+	box-shadow: none;
+	display: inline-flex;
+	align-items: center;
+	min-height: 1.3em;
+}
+
+.ai-message-thinking .ai-message-content::before {
+	content: '▍';
+	color: var(--curtis-neon, var(--interactive-accent));
+	text-shadow: 0 0 8px color-mix(in srgb, var(--curtis-neon, var(--interactive-accent)) 55%, transparent);
+	animation: ai-blink 1.1s infinite step-end;
+}
+
+@keyframes ai-spin {
+	to { transform: rotate(360deg); }
+}
+
+@keyframes ai-dots {
+	0%, 100% { opacity: 0.5; }
+	50%      { opacity: 1; }
+}
+
+/* Code block copy button */
+.ai-code-copy-btn {
+	position: absolute;
+	top: var(--size-4-1);
+	inset-inline-end: var(--size-4-1);
+	padding: 3px var(--size-4-2);
+	font-size: var(--font-ui-smallest);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 6px;
+	background: var(--background-secondary);
+	color: var(--text-muted);
+	cursor: pointer;
+	opacity: 0;
+	transition: opacity 0.15s ease, color 0.15s ease;
+	z-index: 1;
+}
+
+pre:hover .ai-code-copy-btn {
+	opacity: 1;
+}
+
+.ai-code-copy-btn:hover {
+	color: var(--text-normal);
+	background: var(--background-modifier-hover);
+}
+
+/* ============================================================================
+   INPUT AREA — rounded card with circular FAB send button
+   ============================================================================ */
+
+.ai-chat-input-area {
+	display: flex;
+	flex-direction: column;
+	/* Transparent — the composer is borderless and sits directly on the pane,
+	 * so the scroll layer stays visible behind the padding. */
+	padding: 6px 16px 14px;
+	flex-shrink: 0;
+	position: relative;
+	z-index: 4;
+	/* The scroll layer is absolute, so nothing else fills the column —
+	 * without this the composer would sit right under the top bar. */
+	margin-top: auto;
+}
+
+/* Everything in the area aligns to one capped column so wide panes read as
+ * a centered chat, not a stretched form. */
+.ai-chat-attachments,
+.ai-chat-image-strip,
+.ai-chat-input-wrap {
+	max-width: 760px;
+	width: 100%;
+	margin-inline: auto;
+}
+
+/*
+ * THE composer — borderless. No card, no border, no glass: the textarea and
+ * its control row sit directly on the pane surface. The field is located by
+ * its placeholder and caret, the controls by alignment — the maturity comes
+ * from what's absent.
+ */
+.ai-chat-input-wrap {
+	position: relative;
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	padding: 6px 8px;
+}
+
+.ai-chat-input {
+	width: 100%;
+	min-height: 30px;
+	max-height: 320px;
+	padding: 9px var(--size-4-2);
+	border: none;
+	background: transparent;
+	color: var(--text-normal);
+	font-size: var(--font-ui-small);
+	font-family: inherit;
+	line-height: 1.5;
+	resize: none;
+	overflow-y: auto;
+	box-sizing: border-box;
+}
+
+.ai-chat-input:focus {
+	outline: none;
+}
+
+.ai-chat-input::placeholder {
+	color: var(--text-faint);
+}
+
+/* Delivery group — right end of the composer control row; margin-left: auto
+ * anchors it there while attach, mic, arena, and auto-speak hold the left. */
+.ai-chat-send-col {
+	display: flex;
+	align-items: center;
+	flex-shrink: 0;
+	margin-left: auto;
+}
+
+/* Attach group — left end of the composer control row. */
+.ai-chat-attach-col {
+	display: flex;
+	align-items: center;
+	gap: var(--size-4-2);
+	flex-shrink: 0;
+}
+
+.ai-chat-attach-btn {
+	position: relative;
+	overflow: hidden;
+}
+
+.ai-chat-file-input {
+	position: absolute;
+	inset: 0;
+	opacity: 0;
+	pointer-events: none;
+}
+
+/* Pending image strip — thumbnails above the input box. */
+.ai-chat-image-strip {
+	display: flex;
+	gap: var(--size-4-2);
+	margin-bottom: var(--size-4-2);
+	flex-wrap: wrap;
+}
+
+.ai-chat-image-tile {
+	position: relative;
+	width: 64px;
+	height: 64px;
+	border-radius: 8px;
+	overflow: hidden;
+	border: 1px solid var(--background-modifier-border);
+	background: var(--background-secondary);
+}
+
+.ai-chat-image-thumb {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+.ai-chat-image-remove {
+	position: absolute;
+	top: 2px;
+	inset-inline-end: 2px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 18px;
+	height: 18px;
+	padding: 0;
+	border: none;
+	border-radius: 50%;
+	background: rgba(0, 0, 0, 0.6);
+	color: white;
+	cursor: pointer;
+}
+
+.ai-chat-image-remove:hover {
+	background: rgba(0, 0, 0, 0.85);
+}
+
+.ai-chat-image-remove svg {
+	width: 12px;
+	height: 12px;
+}
+
+/* Drag-over feedback on the whole input area. */
+.ai-chat-input-area.is-drag-over {
+	background: var(--background-modifier-hover);
+	border-radius: 12px;
+	outline: 2px dashed var(--interactive-accent);
+	outline-offset: -4px;
+}
+
+/* Image gallery inside a user message bubble. */
+.ai-message-image-gallery {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--size-4-2);
+	margin-top: var(--size-4-2);
+}
+
+.ai-message-image {
+	max-width: 180px;
+	max-height: 180px;
+	border-radius: 8px;
+	cursor: zoom-in;
+	border: 1px solid var(--background-modifier-border);
+}
+
+/* Send button — the brand's neon green disc: logo-green gradient, dark arrow
+ * (neon-sign contrast), and a real green glow. Lifts on hover, presses on
+ * click. The one saturated element in the composer. */
+.ai-chat-send-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	padding: 0;
+	background: radial-gradient(120% 120% at 32% 24%, var(--curtis-neon-bright), var(--curtis-neon) 62%);
+	color: var(--curtis-neon-ink);
+	border: none;
+	border-radius: 50%;
+	cursor: pointer;
+	box-shadow:
+		0 0 0 1px color-mix(in srgb, var(--curtis-neon) 40%, transparent),
+		0 2px 10px color-mix(in srgb, var(--curtis-neon) 38%, transparent),
+		0 0 22px color-mix(in srgb, var(--curtis-neon) 22%, transparent);
+	transition: background var(--curtis-motion), transform var(--curtis-motion), box-shadow var(--curtis-motion), opacity var(--curtis-motion);
+	flex-shrink: 0;
+}
+
+.ai-chat-send-btn:hover:not(:disabled) {
+	background: radial-gradient(120% 120% at 32% 24%, var(--curtis-neon-bright), var(--curtis-neon) 40%);
+	transform: translateY(-1px);
+	box-shadow:
+		0 0 0 1px color-mix(in srgb, var(--curtis-neon) 55%, transparent),
+		0 4px 16px color-mix(in srgb, var(--curtis-neon) 50%, transparent),
+		0 0 32px color-mix(in srgb, var(--curtis-neon) 32%, transparent);
+}
+
+.ai-chat-send-btn:active:not(:disabled) {
+	transform: translateY(0) scale(0.94);
+	box-shadow:
+		0 0 0 1px color-mix(in srgb, var(--curtis-neon) 40%, transparent),
+		0 1px 6px color-mix(in srgb, var(--curtis-neon) 30%, transparent);
+}
+
+.ai-chat-send-btn:disabled {
+	opacity: 0.4;
+	cursor: not-allowed;
+}
+
+.ai-chat-send-btn svg {
+	width: 16px;
+	height: 16px;
+	/* Slightly heavier arrow so the dark mark holds its own on the neon. */
+	stroke-width: 2.6px;
+	filter: drop-shadow(0 0 1px color-mix(in srgb, var(--curtis-neon-bright) 60%, transparent));
+}
+
+/* Abort button — pill, outlined in error red, sits next to input. A slow
+ * breathing ring while visible — "live", without shouting. */
+.ai-chat-abort-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	/* Same 32px footprint as the Send disc it replaces in-place. */
+	width: 32px;
+	height: 32px;
+	padding: 0;
+	background: transparent;
+	color: var(--text-error);
+	border: 1px solid var(--text-error);
+	border-radius: 50%;
+	font-size: var(--font-ui-small);
+	font-weight: 500;
+	cursor: pointer;
+	animation: ai-breathe 2.2s cubic-bezier(0.22, 0.61, 0.36, 1) infinite;
+	transition: background var(--curtis-motion), transform var(--curtis-motion), box-shadow var(--curtis-motion);
+}
+
+@keyframes ai-breathe {
+	0%,
+	100% {
+		box-shadow: 0 0 0 0 color-mix(in srgb, var(--text-error) 30%, transparent);
+	}
+	55% {
+		box-shadow: 0 0 0 7px transparent;
+	}
+}
+
+.ai-chat-abort-btn:hover {
+	background: var(--background-modifier-error-hover, rgba(240, 80, 80, 0.12));
+}
+
+.ai-chat-abort-btn:active {
+	transform: scale(0.95);
+}
+
+.ai-chat-abort-btn svg {
+	width: 14px;
+	height: 14px;
+}
+
+/* Composer control row — under the typing area: attach + mic + arena +
+ * auto-speak hold the left edge; send anchors right via .ai-chat-send-col's
+ * margin-left: auto. */
+.ai-chat-btn-row {
+	display: flex;
+	align-items: center;
+	gap: var(--size-4-2);
+	padding: 4px 2px 2px 0;
+}
+
+/* Motion off — users who ask the OS for reduced motion get a still UI. */
+@media (prefers-reduced-motion: reduce) {
+	.ai-chat-send-btn,
+	.ai-model-picker-btn,
+	.ai-chat-icon-btn,
+	.ai-model-dropdown,
+	.ai-model-dropdown-item,
+	.ai-chat-abort-btn,
+	.ai-message-thinking .ai-message-content::before,
+	.ai-message-streaming .ai-message-content::after,
+	.ai-chat-scroll-btn,
+	.ai-arena-column-response.ai-message-thinking::after {
+		transition: none !important;
+		animation: none !important;
+		opacity: 1 !important;
+	}
+
+	.ai-chat-messages {
+		scroll-behavior: auto;
+	}
+}
+
+/* ============================================================================
+   HISTORY DROPDOWN
+   ============================================================================ */
+
+.ai-history-dropdown {
+	background: var(--background-secondary);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-m);
+	box-shadow: var(--shadow-l);
+	z-index: 100;
+	padding: var(--size-4-1);
+	min-width: 280px;
+	max-height: 360px;
+	overflow-y: auto;
+}
+
+.ai-history-item {
+	padding: var(--size-4-2) var(--size-4-3);
+	border-radius: 10px;
+	cursor: pointer;
+	margin-bottom: 2px;
+	transition: background 0.15s ease;
+}
+
+.ai-history-item:hover {
+	background: var(--background-modifier-hover);
+}
+
+.ai-history-item.is-active {
+	background: var(--background-modifier-hover);
+	/* Leading accent bar — border-inline-start rather than an inset
+	 * box-shadow (shadows have no logical form) so the bar flips with RTL;
+	 * the compensated padding keeps active/inactive content aligned. */
+	border-inline-start: 3px solid var(--interactive-accent);
+	padding-inline-start: calc(var(--size-4-3) - 3px);
+}
+
+.ai-history-title {
+	font-size: var(--font-ui-small);
+	font-weight: 500;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	color: var(--text-normal);
+}
+
+.ai-history-meta {
+	font-size: var(--font-ui-smallest);
+	color: var(--text-muted);
+	margin-top: 2px;
+}
+
+/* ============================================================================
+   MODEL PICKER — full modal (the "All models…" route) + suggestion rows
+   The modal is the anchored dropdown's big sibling: same design language —
+   soft radius, hairline border, deep shadow, provider dots, real chips —
+   at browsing scale.
+   ============================================================================ */
+
+/* Modal chrome — tighter than a stock fuzzy modal, softer corners. */
+/* Shared modal surface — every branded modal sits on the same radius and
+ * shadow tokens. Scoped to the branded classes: plugin CSS loads globally,
+ * so bare `.modal` would restyle every modal in the app. */
+.ai-model-picker-modal,
+.ai-arena-picker-modal,
+.ai-run-command-modal {
+	border-radius: var(--radius-xl);
+	box-shadow: var(--shadow-l);
+}
+
+.ai-model-picker-modal {
+	max-width: 560px;
+	border: 1px solid var(--background-modifier-border);
+}
+
+.ai-model-picker-modal .search-input-container input {
+	font-size: var(--font-ui-medium);
+	padding: var(--size-4-2) var(--size-4-1);
+	border: none;
+	background: transparent;
+}
+
+/* Rows sit inset inside the modal, so the selection reads as a rounded
+ * highlight, not an edge-to-edge stripe. */
+.ai-model-suggestion-row {
+	padding: 1px 6px;
+}
+
+.ai-model-suggestion {
+	display: flex;
+	align-items: center;
+	gap: var(--size-4-3);
+	padding: var(--size-4-2) var(--size-4-3);
+	border-radius: var(--radius-m);
+	transition: background var(--curtis-motion);
+}
+
+.ai-model-suggestion-row.is-selected .ai-model-suggestion {
+	background: var(--background-modifier-hover);
+}
+
+.ai-model-suggestion-dot {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: var(--provider-color, var(--interactive-accent));
+	flex-shrink: 0;
+	/* A hair of glow so the dot reads as the provider's brand mark. */
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--provider-color, var(--interactive-accent)) 18%, transparent);
+}
+
+.ai-model-suggestion-text {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	flex: 1;
+}
+
+.ai-model-suggestion-name {
+	font-weight: 500;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	color: var(--text-normal);
+}
+
+.ai-model-suggestion-provider {
+	font-size: var(--font-ui-smallest);
+	color: var(--text-muted);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+/* Capability chips — small bordered pills; vision green, tools blue, context
+ * neutral, active filled with the accent. */
+.ai-model-pills {
+	display: flex;
+	align-items: center;
+	gap: var(--size-4-1);
+	flex-shrink: 0;
+	max-width: 45%;
+	justify-content: flex-end;
+	flex-wrap: wrap;
+}
+
+.ai-model-pill {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--size-2-2);
+	padding: var(--size-2-1) var(--size-4-2);
+	background: var(--background-secondary);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 999px;
+	color: var(--text-muted);
+	font-size: var(--font-ui-smallest);
+	font-weight: 500;
+	line-height: 1.5;
+	white-space: nowrap;
+}
+
+.ai-model-pill svg {
+	width: 10px;
+	height: 10px;
+}
+
+.ai-model-pill.is-active {
+	background: var(--interactive-accent);
+	border-color: transparent;
+	color: var(--text-on-accent);
+}
+
+.ai-model-pill-vision {
+	color: var(--color-green);
+	background: color-mix(in srgb, var(--color-green) 8%, transparent);
+	border-color: color-mix(in srgb, var(--color-green) 24%, transparent);
+}
+
+.ai-model-pill-tools {
+	color: var(--color-blue);
+	background: color-mix(in srgb, var(--color-blue) 8%, transparent);
+	border-color: color-mix(in srgb, var(--color-blue) 24%, transparent);
+}
+
+/* Highlight the active model name in the picker. */
+.ai-model-suggestion-name.is-active {
+	color: var(--interactive-accent);
+}
+
+/* ============================================================================
+   PROVIDER SETTINGS SECTIONS
+   ============================================================================ */
+
+/* Provider cards are .setting-item rows (el.addClass on settingEl), so the
+ * settings pane system (S1/S9, bottom of this file) flattens their box and
+ * styles their rows + titles — no box/title rules here. The class remains
+ * as a scope hook for the advanced-params rules below. */
+
+.ai-provider-settings .setting-item-control input[type='text'] {
+	width: 100%;
+	min-width: 200px;
+}
+
+/* Raw input in the "Add model" row (created imperatively, not via
+   Setting.addText) — needs explicit theme variables to match Obsidian's
+   native text inputs. */
+.ai-provider-settings input.ai-manual-model-input {
+	flex-grow: 1;
+	padding: var(--size-4-1) var(--size-4-2);
+	background: var(--background-modifier-form-field);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-s);
+	color: var(--text-normal);
+	font-size: var(--font-ui-small);
+}
+
+/* Per-provider "Advanced request parameters" — collapsed by default so the
+   provider cards stay scannable; opens to the sampling overrides, the
+   Ollama-only local-server options, and the extra-body passthrough. */
+.ai-provider-settings details.ai-advanced-params {
+	margin-top: var(--size-4-2);
+	padding: var(--size-4-2);
+	border: 1px dashed var(--background-modifier-border);
+	border-radius: var(--radius-s);
+}
+
+.ai-provider-settings details.ai-advanced-params > summary {
+	cursor: pointer;
+	color: var(--text-muted);
+	font-size: var(--font-ui-small);
+	font-weight: var(--font-medium);
+	user-select: none;
+}
+
+.ai-provider-settings details.ai-advanced-params[open] > summary {
+	margin-bottom: var(--size-4-1);
+	color: var(--text-normal);
+}
+
+.ai-provider-settings details.ai-advanced-params > p.ai-setting-hint {
+	margin: 0 0 var(--size-4-2) 0;
+}
+
+.ai-provider-settings details.ai-advanced-params .setting-item-control textarea {
+	min-width: 240px;
+}
+
+/* ============================================================================
+   MESSAGE ACTIONS — hover toolbar on assistant messages
+   ============================================================================ */
+
+.ai-message-assistant {
+	position: relative;
+}
+
+.ai-message-actions {
+	position: absolute;
+	top: 0;
+	inset-inline-end: 0;
+	display: flex;
+	gap: 2px;
+	padding: 2px;
+	background: var(--background-secondary);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 8px;
+	opacity: 0;
+	transition: opacity 0.12s ease;
+	pointer-events: none;
+	z-index: 2;
+	transform: translateY(-50%);
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+
+.ai-message-assistant:hover .ai-message-actions {
+	opacity: 1;
+	pointer-events: auto;
+}
+
+.ai-message-action-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 24px;
+	height: 24px;
+	padding: 0;
+	border: none;
+	background: transparent;
+	color: var(--text-muted);
+	cursor: pointer;
+	border-radius: 4px;
+}
+
+.ai-message-action-btn:hover {
+	background: var(--background-modifier-hover);
+	color: var(--text-normal);
+}
+
+.ai-message-action-btn svg {
+	width: 14px;
+	height: 14px;
+}
+
+/* ============================================================================
+   SLASH MENU — autocomplete dropdown above the input area
+   ============================================================================ */
+
+.ai-slash-menu {
+	position: absolute;
+	inset-inline-start: var(--size-4-4);
+	inset-inline-end: var(--size-4-4);
+	bottom: calc(100% + 4px);
+	max-height: 240px;
+	overflow-y: auto;
+	background: var(--background-primary);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 8px;
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+	z-index: 10;
+}
+
+.ai-slash-menu-item {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	padding: 6px var(--size-4-2);
+	cursor: pointer;
+	border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.ai-slash-menu-item:last-child {
+	border-bottom: none;
+}
+
+.ai-slash-menu-item:hover,
+.ai-slash-menu-item.is-selected {
+	background: var(--background-modifier-hover);
+}
+
+.ai-slash-menu-item code {
+	font-size: var(--font-ui-small);
+	color: var(--text-accent);
+	background: transparent;
+	padding: 0;
+}
+
+.ai-slash-menu-desc {
+	font-size: var(--font-ui-smallest);
+	color: var(--text-muted);
+}
+
+/* ============================================================================
+   @-MENTION MENU — vault-note autocomplete dropdown above the input area.
+   Mirrors .ai-slash-menu geometry so both dropdowns feel like the same surface.
+   ============================================================================ */
+
+.ai-mention-menu {
+	position: absolute;
+	inset-inline-start: var(--size-4-4);
+	inset-inline-end: var(--size-4-4);
+	bottom: calc(100% + 4px);
+	max-height: 240px;
+	overflow-y: auto;
+	background: var(--background-primary);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 8px;
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+	z-index: 10;
+}
+
+.ai-mention-menu-item {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	padding: 6px var(--size-4-2);
+	cursor: pointer;
+	border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.ai-mention-menu-item:last-child {
+	border-bottom: none;
+}
+
+.ai-mention-menu-item:hover,
+.ai-mention-menu-item.is-selected {
+	background: var(--background-modifier-hover);
+}
+
+.ai-mention-menu-name {
+	font-size: var(--font-ui-small);
+	color: var(--text-normal);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.ai-mention-menu-path {
+	font-size: var(--font-ui-smallest);
+	color: var(--text-muted);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+/* ============================================================================
+   SLASH HELP MODAL
+   ============================================================================ */
+
+.ai-slash-help-list {
+	padding-top: var(--size-4-2);
+}
+
+.ai-slash-help-row {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	padding: 6px 0;
+	border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.ai-slash-help-row:last-child {
+	border-bottom: none;
+}
+
+.ai-slash-help-row code {
+	color: var(--text-accent);
+	font-size: var(--font-ui-small);
+}
+
+.ai-slash-help-desc {
+	color: var(--text-muted);
+	font-size: var(--font-ui-smaller);
+}
+
+/* Privacy notice in provider settings */
+.ai-privacy-note {
+	padding: var(--size-4-2) var(--size-4-3);
+	margin: var(--size-4-2) 0;
+	background: var(--background-modifier-hover);
+	border-inline-start: 3px solid var(--interactive-accent);
+	border-radius: var(--radius-s);
+	font-size: var(--font-ui-small);
+	color: var(--text-muted);
+}
+
+/* ============================================================================
+   MOBILE / TOUCH — surface hover-only elements, bump touch targets,
+   adapt layout for narrow viewports.
+   ============================================================================ */
+
+/* Touch devices have no hover — make hover-only elements always visible
+ * at reduced opacity so they're discoverable but not noisy. */
+@media (hover: none) {
+	.ai-message-actions {
+		opacity: 1;
+		pointer-events: auto;
+		transform: none;
+	}
+
+	.ai-code-copy-btn {
+		opacity: 1;
+	}
+
+	/* Slightly larger action buttons on touch for thumb taps. */
+	.ai-message-action-btn {
+		width: 32px;
+		height: 32px;
+	}
+
+	.ai-message-action-btn svg {
+		width: 18px;
+		height: 18px;
+	}
+
+	.ai-chat-image-remove {
+		width: 24px;
+		height: 24px;
+	}
+
+	.ai-chat-image-remove svg {
+		width: 14px;
+		height: 14px;
+	}
+
+	/* Header icon buttons: bump to ~40px so they're tappable. */
+	.ai-chat-icon-btn {
+		width: 40px;
+		height: 40px;
+	}
+
+	.ai-chat-icon-btn svg {
+		width: 20px;
+		height: 20px;
+	}
+
+	/* Send button: 44px is the iOS HIG minimum. */
+	.ai-chat-send-btn,
+	.ai-chat-abort-btn {
+		width: 44px;
+		height: 44px;
+	}
+
+	/* Message bubbles: max-width 88% is too narrow on a 360px screen. */
+	.ai-message,
+	.ai-message-assistant {
+		max-width: 92%;
+	}
+
+	/* M1 — touch wins over container shrink. The (max-width: 440px) pane
+	 * query out-specifies the single-class bump above, shrinking composer
+	 * buttons to 28/30px on exactly the devices that need 44px targets.
+	 * Re-assert at higher specificity: phones get 40px icon buttons (send /
+	 * abort stay 44), plus a 3px ::after hit-slop pushing the effective
+	 * target past the 44px minimum. */
+	.ai-chat-view .ai-composer .ai-chat-icon-btn {
+		width: 40px;
+		height: 40px;
+		position: relative;
+	}
+
+	.ai-chat-view .ai-composer .ai-chat-icon-btn::after {
+		content: '';
+		position: absolute;
+		inset: -3px;
+	}
+
+	.ai-chat-view .ai-composer .ai-chat-icon-btn svg {
+		width: 20px;
+		height: 20px;
+	}
+
+	.ai-chat-view .ai-chat-send-btn,
+	.ai-chat-view .ai-chat-abort-btn {
+		width: 44px;
+		height: 44px;
+	}
+
+	.ai-chat-view .ai-chat-send-btn svg {
+		width: 18px;
+		height: 18px;
+	}
+
+	/* M2 — real gaps between adjacent actions so a thumb can't mis-tap two
+	 * buttons at once (the desktop cluster is a tight 2px hover toolbar). */
+	.ai-message-actions {
+		gap: 4px;
+		padding: 3px;
+	}
+
+	/* User-message actions sit at (0,2,0) later in the file — same bump at
+	 * higher specificity so both sides match. */
+	.ai-chat-view .ai-user-actions .ai-message-action-btn {
+		width: 32px;
+		height: 32px;
+	}
+
+	.ai-chat-view .ai-user-actions {
+		gap: 4px;
+	}
+
+	/* M3 — composer and scrollback respect the home-indicator / gesture bar:
+	 * safe-area inset added to the bottom padding of both layers. */
+	.ai-chat-input-area {
+		padding-bottom: calc(var(--size-4-3) + env(safe-area-inset-bottom));
+	}
+
+	.ai-chat-messages {
+		padding-bottom: calc(120px + env(safe-area-inset-bottom));
+	}
+
+	/* M6 — picker rows become real touch rows: min-height 44, a pressed
+	 * state (hover never fires on touch), and the focus ring the click-div
+	 * rows owe the keyboard. Arena rows already carry the ring at rest. */
+	.ai-model-suggestion {
+		min-height: 44px;
+	}
+
+	.ai-model-suggestion:active,
+	.ai-arena-picker-row:active {
+		background: var(--background-modifier-hover);
+	}
+
+	.ai-model-suggestion:focus-visible {
+		outline: none;
+		box-shadow:
+			0 0 0 2px var(--background-primary),
+			0 0 0 4px var(--background-modifier-border-focus);
+	}
+
+	.ai-arena-picker-row {
+		min-height: 44px;
+	}
+}
+
+/* Narrow viewports (phones in portrait, narrow sidebar). */
+@media (max-width: 480px) {
+	/* Shrink the empty-state hero orb so it doesn't dominate a small screen. */
+	.ai-chat-empty-icon {
+		width: 72px;
+		height: 72px;
+	}
+
+	.ai-chat-empty-title {
+		font-size: var(--font-ui-medium);
+	}
+
+	/* The model picker should not push the send button off-screen on phones. */
+	.ai-model-picker-btn-text {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		max-width: 140px;
+	}
+
+	/* Input area: reduce horizontal padding so textarea gets more width. */
+	.ai-chat-input-area {
+		padding: var(--size-4-2) var(--size-4-2) var(--size-4-3);
+	}
+
+	/* Slash/mention menus: span full width minus tight margins. */
+	.ai-slash-menu,
+	.ai-mention-menu {
+		inset-inline-start: var(--size-4-2);
+		inset-inline-end: var(--size-4-2);
+	}
+
+	/* Image thumbnails: smaller tiles so 3+ fit in a row. */
+	.ai-chat-image-tile {
+		width: 56px;
+		height: 56px;
+	}
+
+	/* History dropdown: full-width on mobile so items are tappable. */
+	.ai-history-dropdown {
+		inset-inline-start: var(--size-4-2);
+		inset-inline-end: var(--size-4-2);
+	}
+
+	.ai-history-item {
+		padding: var(--size-4-3) var(--size-4-2);
+		min-height: 48px;
+	}
+}
+
+/* Disable wallpaper rendering on mobile for performance — the constant
+ * repaint of a large background image hurts scroll FPS on phones. Users
+ * who really want it can re-enable via CSS snippet. */
+@media (hover: none) and (max-width: 480px) {
+	.ai-chat-background.has-wallpaper {
+		background-image: none;
+	}
+	.ai-chat-background.has-wallpaper::after {
+		display: none;
+	}
+}
+
+/* ============================================================================
+   UTILITY CLASSES — support the no-static-styles-assignment lint rule.
+   These replace direct el.style.x = y writes in view.ts / message-renderer.ts.
+   ============================================================================ */
+
+/* Hide any element via display:none. Used in place of el.style.display = 'none'
+ * (the Obsidian linter forbids direct style writes). Applied to:
+ *   - .ai-chat-image-strip (when no pending images)
+ *   - .ai-chat-abort-btn (initial state, before first send)
+ *   - .ai-slash-menu (when no suggestions / hidden)
+ *   - .ai-mention-menu (when no suggestions / hidden) */
+.is-hidden {
+	display: none;
+}
+
+/* Position the <pre> relatively so the absolutely-positioned copy button
+ * (.ai-code-copy-btn) anchors against it. */
+.ai-code-block {
+	position: relative;
+}
+
+/* Whitespace handling for rendered user message text. Redundant with
+ * .ai-message-user .ai-message-content, but renderUserMessage can be called
+ * on containers without the .ai-message-user ancestor. */
+.ai-user-message-text {
+	white-space: pre-wrap;
+}
+
+/* Override the earlier .ai-chat-file-input rule (which sets position/inset/
+ * opacity/pointer-events): the input only needs to exist in the DOM for the
+ * file-picker dialog to fire — it never needs to be visible. */
+.ai-chat-file-input {
+	display: none;
+}
+
+/* Position the history dropdown absolutely relative to its container.
+ * `top` is set dynamically via setCssProps in showHistoryDropdown. */
+.ai-history-dropdown {
+	position: absolute;
+	inset-inline-end: 8px;
+}
+
+/* ============================================================================
+   AGENT — tool invocation + tool result bubbles
+   Rendered inline between the user message and the final assistant text.
+   Monospace, slightly muted — terminal-output feel.
+   ============================================================================ */
+
+/* Tool invocation bubble — assistant requested a tool call.
+ * Left-aligned (same side as assistant), narrower than content bubbles. */
+.ai-message-tool-call {
+	align-self: flex-start;
+	align-items: flex-start;
+	max-width: 80%;
+	background: var(--background-secondary);
+	border: 1px dashed var(--background-modifier-border);
+	border-radius: 10px;
+	padding: 8px 12px;
+	font-size: var(--font-ui-smaller);
+	color: var(--text-muted);
+	animation: ai-message-slide 0.2s cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+
+.ai-tool-call-header,
+.ai-tool-result-header {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin-bottom: 4px;
+}
+
+.ai-tool-call-icon,
+.ai-tool-result-icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--interactive-accent);
+}
+
+.ai-tool-call-icon svg,
+.ai-tool-result-icon svg {
+	width: 14px;
+	height: 14px;
+}
+
+.ai-tool-call-name {
+	font-family: var(--font-monospace);
+	font-weight: 600;
+	color: var(--text-normal);
+	font-size: var(--font-ui-small);
+}
+
+.ai-tool-call-args pre {
+	margin: 0;
+	padding: 6px 8px;
+	background: var(--background-primary);
+	border-radius: 6px;
+	font-family: var(--font-monospace);
+	font-size: var(--font-ui-smallest);
+	color: var(--text-muted);
+	white-space: pre-wrap;
+	word-break: break-word;
+	max-height: 200px;
+	overflow-y: auto;
+}
+
+/* Tool result bubble — output from an executed tool. */
+.ai-message-tool {
+	align-self: flex-start;
+	max-width: 80%;
+	background: var(--background-secondary);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 10px;
+	padding: 8px 12px;
+	font-size: var(--font-ui-smaller);
+	color: var(--text-muted);
+	animation: ai-message-slide 0.2s cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+
+/* Error variant — red-tinted border + label. */
+.ai-message-tool.is-error {
+	border-color: var(--text-error);
+}
+
+.ai-message-tool.is-error .ai-tool-result-icon,
+.ai-message-tool.is-error .ai-tool-result-label {
+	color: var(--text-error);
+}
+
+.ai-tool-result-label {
+	font-family: var(--font-monospace);
+	font-weight: 600;
+	color: var(--text-normal);
+	font-size: var(--font-ui-smallest);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+.ai-tool-result-body pre {
+	margin: 0;
+	padding: 6px 8px;
+	background: var(--background-primary);
+	border-radius: 6px;
+	font-family: var(--font-monospace);
+	font-size: var(--font-ui-smallest);
+	color: var(--text-normal);
+	white-space: pre-wrap;
+	word-break: break-word;
+	max-height: 280px;
+	overflow-y: auto;
+}
+
+/* Mobile: tool bubbles get a bit more width on narrow screens. */
+@media (hover: none) {
+	.ai-message-tool-call,
+	.ai-message-tool {
+		max-width: 90%;
+	}
+}
+
+/* ============================================================================
+   ARENA MODE — multi-model parallel streaming
+   ============================================================================ */
+
+/* Arena toggle button — highlighted when active. */
+.ai-chat-arena-btn.is-active {
+	background: linear-gradient(145deg, var(--interactive-accent), var(--interactive-accent-hover));
+	color: var(--text-on-accent);
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--interactive-accent) 18%, transparent);
+}
+
+.ai-chat-arena-btn.is-active:hover {
+	background: var(--interactive-accent-hover);
+	color: var(--text-on-accent);
+}
+
+/* Arena layout — CSS grid with N equal columns. Column count is set via
+ * the --arena-columns custom property on the layout element. */
+.ai-arena-layout {
+	display: grid;
+	grid-template-columns: repeat(var(--arena-columns, 2), minmax(0, 1fr));
+	gap: var(--size-4-2);
+	margin: var(--size-4-2) 0;
+	width: 100%;
+	align-self: stretch;
+}
+
+/* 3-4 way rounds need the width fullscreen gives them; on narrower windows
+ * wrap to two columns so verdicts stay readable. */
+@media (max-width: 1100px) {
+	.ai-arena-layout.ai-arena-wide {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+.ai-arena-column {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-m);
+	background: var(--background-secondary);
+	overflow: hidden;
+}
+
+.ai-arena-column-header {
+	display: flex;
+	align-items: center;
+	gap: var(--size-4-1);
+	padding: 6px 10px;
+	border-bottom: 1px solid var(--background-modifier-border);
+	background: var(--background-primary);
+	font-size: var(--font-ui-smaller);
+}
+
+.ai-arena-column-header .ai-message-role-dot {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: var(--provider-color, var(--interactive-accent));
+	flex-shrink: 0;
+}
+
+.ai-arena-column-header-text {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	flex: 1;
+}
+
+.ai-arena-column-model {
+	font-weight: 600;
+	color: var(--text-normal);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	font-size: var(--font-ui-smaller);
+}
+
+.ai-arena-column-provider {
+	font-size: var(--font-ui-smallest);
+	color: var(--text-muted);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.ai-arena-param-summary {
+	font-size: var(--font-ui-smaller);
+	color: var(--text-muted);
+	margin-top: 2px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.ai-arena-column-response {
+	padding: 8px 10px;
+	font-size: var(--font-ui-small);
+	line-height: 1.5;
+	color: var(--text-normal);
+	max-height: 600px;
+	overflow-y: auto;
+	flex: 1;
+}
+
+/* Reuse the streaming-text pre styling from the live message renderer. */
+.ai-arena-column-response .ai-message-streaming-text {
+	margin: 0;
+	font-family: var(--font-text);
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+/* Thinking state — subtle pulse to show "waiting for first chunk". */
+.ai-arena-column-response.ai-message-thinking {
+	min-height: 40px;
+	position: relative;
+}
+
+/* Same terminal caret as the main chat — consistent gesture everywhere. */
+.ai-arena-column-response.ai-message-thinking::after {
+	content: '▍';
+	position: absolute;
+	top: 6px;
+	inset-inline-start: 10px;
+	color: var(--curtis-neon, var(--interactive-accent));
+	text-shadow: 0 0 8px color-mix(in srgb, var(--curtis-neon, var(--interactive-accent)) 55%, transparent);
+	animation: ai-blink 1.1s infinite step-end;
+}
+
+.ai-arena-column-error {
+	color: var(--text-error);
+	font-size: var(--font-ui-smaller);
+	padding: 6px 0;
+}
+
+.ai-arena-column-footer {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--size-4-2);
+	padding: 4px 10px;
+	border-top: 1px solid var(--background-modifier-border);
+	background: var(--background-primary);
+	font-size: var(--font-ui-smallest);
+	color: var(--text-muted);
+	min-height: 28px;
+}
+
+.ai-arena-column-usage {
+	color: var(--text-faint);
+	font-variant-numeric: tabular-nums;
+}
+
+.ai-arena-promote-btn {
+	background: transparent;
+	border: 1px solid var(--background-modifier-border);
+	color: var(--text-muted);
+	border-radius: var(--radius-s);
+	padding: 2px 8px;
+	font-size: var(--font-ui-smallest);
+	cursor: pointer;
+	transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.ai-arena-promote-btn:hover:not(:disabled) {
+	background: var(--background-modifier-hover);
+	color: var(--text-normal);
+	border-color: var(--interactive-accent);
+}
+
+.ai-arena-promote-btn:disabled {
+	opacity: 0.4;
+	cursor: not-allowed;
+}
+
+/* Per-column stop — aborts only its own stream; removed once the column
+ * settles. Hover leans destructive to distinguish it from Promote. */
+.ai-arena-stop-btn {
+	background: transparent;
+	border: 1px solid var(--background-modifier-border);
+	color: var(--text-muted);
+	border-radius: var(--radius-s);
+	padding: 2px 8px;
+	font-size: var(--font-ui-smallest);
+	cursor: pointer;
+	transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.ai-arena-stop-btn:hover {
+	background: var(--background-modifier-hover);
+	color: var(--text-error);
+	border-color: var(--text-error);
+}
+
+/* Narrow phone only — stack columns vertically. Sidebar at ~360px+ keeps
+ * the side-by-side arena view; only true phone-width collapses. */
+@media (max-width: 360px) {
+	.ai-arena-layout {
+		grid-template-columns: 1fr;
+	}
+}
+
+/* ============================================================================
+   ARENA MODEL PICKER MODAL
+   ============================================================================ */
+
+.ai-arena-picker-modal .ai-arena-picker-desc {
+	color: var(--text-muted);
+	font-size: var(--font-ui-small);
+	margin: 0 0 var(--size-4-2) 0;
+}
+
+.ai-arena-picker-counter {
+	font-size: var(--font-ui-smaller);
+	color: var(--text-normal);
+	font-weight: 600;
+	margin-bottom: var(--size-4-2);
+	/* "Selected: n / 4" is live numeric state — tabular figures don't twitch
+	 * as the count ticks. */
+	font-variant-numeric: tabular-nums;
+}
+
+.ai-arena-picker-list {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	max-height: 50vh;
+	overflow-y: auto;
+	margin-bottom: var(--size-4-3);
+}
+
+.ai-arena-picker-row {
+	display: flex;
+	align-items: center;
+	gap: var(--size-4-2);
+	padding: var(--size-4-2) var(--size-4-3);
+	/* Same highlight radius as the model-picker rows — one row language. */
+	border-radius: var(--radius-m);
+	cursor: pointer;
+	transition: background var(--curtis-motion);
+}
+
+.ai-arena-picker-row:hover {
+	background: var(--background-modifier-hover);
+}
+
+/* Rows are click-divs, so focusability is opt-in (tabindex in TS). Once
+ * focusable they owe the keyboard the same ring every other control gets. */
+.ai-arena-picker-row:focus-visible {
+	outline: none;
+	box-shadow:
+		0 0 0 2px var(--background-primary),
+		0 0 0 4px var(--background-modifier-border-focus);
+}
+
+.ai-arena-picker-row.is-selected {
+	background: var(--background-modifier-hover);
+}
+
+.ai-arena-picker-check {
+	width: 18px;
+	height: 18px;
+	border-radius: var(--radius-s);
+	border: 2px solid var(--background-modifier-border);
+	flex-shrink: 0;
+	position: relative;
+	transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.ai-arena-picker-row.is-selected .ai-arena-picker-check {
+	background: var(--interactive-accent);
+	border-color: var(--interactive-accent);
+}
+
+.ai-arena-picker-row.is-selected .ai-arena-picker-check::after {
+	content: '';
+	position: absolute;
+	left: 5px;
+	top: 1px;
+	width: 5px;
+	height: 10px;
+	border: solid var(--text-on-accent);
+	border-width: 0 2px 2px 0;
+	transform: rotate(45deg);
+}
+
+.ai-arena-picker-text {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	flex: 1;
+}
+
+.ai-arena-picker-name {
+	font-weight: 500;
+	color: var(--text-normal);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.ai-arena-picker-provider {
+	font-size: var(--font-ui-smallest);
+	color: var(--text-muted);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.ai-arena-picker-footer {
+	display: flex;
+	justify-content: flex-end;
+	gap: var(--size-4-2);
+	padding-top: var(--size-4-2);
+	border-top: 1px solid var(--background-modifier-border);
+	font-variant-numeric: tabular-nums;
+}
+
+.ai-arena-picker-start:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+/* ============================================================================
+   DIFF REWRITE MODAL — Cursor-style inline rewrite review
+   ============================================================================ */
+
+/* Diff rewrite modal — widen + cap height so long rewrites stay scrollable. */
+.ai-diff-rewrite-modal {
+	width: 700px;
+	max-height: 80vh;
+}
+
+.ai-diff-container {
+	font-family: var(--font-monospace);
+	font-size: var(--font-size-sm);
+	background: var(--background-secondary);
+	border-radius: 6px;
+	padding: 8px;
+	max-height: 50vh;
+	overflow-y: auto;
+	margin-bottom: 12px;
+}
+
+.ai-diff-line {
+	display: flex;
+	padding: 1px 4px;
+	border-radius: 2px;
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.ai-diff-prefix {
+	width: 16px;
+	flex-shrink: 0;
+	color: var(--text-faint);
+}
+
+.ai-diff-added {
+	background: var(--background-modifier-success);
+}
+.ai-diff-added .ai-diff-prefix { color: var(--text-success); }
+
+.ai-diff-removed {
+	background: var(--background-modifier-error);
+}
+.ai-diff-removed .ai-diff-prefix { color: var(--text-error); }
+
+.ai-diff-unchanged {
+	color: var(--text-muted);
+}
+
+/* ============================================================================
+   VOICE I/O — mic button, speaking indicator, auto-speak toggle
+   ============================================================================ */
+
+/* Mic button — pulses red while recording. */
+.ai-chat-mic-button.is-recording {
+	background: var(--color-red);
+	color: var(--text-on-accent);
+	animation: ai-pulse 1.5s ease-in-out infinite;
+}
+
+.ai-chat-mic-button.is-recording:hover {
+	background: var(--color-red);
+	color: var(--text-on-accent);
+}
+
+/* Speaker action on assistant messages — accent-colored while speaking. */
+.ai-msg-speak-btn.is-speaking {
+	color: var(--interactive-accent);
+	animation: ai-pulse 1s ease-in-out infinite;
+}
+
+/* Auto-speak toggle in the header — highlighted when active. */
+.ai-chat-autospeak-btn.is-active {
+	background: linear-gradient(145deg, var(--interactive-accent), var(--interactive-accent-hover));
+	color: var(--text-on-accent);
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--interactive-accent) 18%, transparent);
+}
+
+.ai-chat-autospeak-btn.is-active:hover {
+	background: var(--interactive-accent-hover);
+	color: var(--text-on-accent);
+}
+
+@keyframes ai-pulse {
+	0%, 100% { opacity: 1; }
+	50% { opacity: 0.5; }
+}
+
+/* ============================================================================
+   ACTIVE-NOTE AWARENESS — header pill + attachment chips
+   ============================================================================ */
+
+/* Header pill — shows the note the user is currently editing. Click attaches. */
+.ai-chat-active-note {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	padding: 2px 8px;
+	background: var(--background-modifier-hover);
+	/* Joins the chip family — same radius + hairline as the model chip and
+	 * agent pill, so the three read as one system. */
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-s);
+	font-size: var(--font-ui-smaller);
+	cursor: pointer;
+	max-width: 150px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	color: var(--text-muted);
+	flex-shrink: 0;
+	transition: background var(--curtis-motion), color var(--curtis-motion), border-color var(--curtis-motion);
+}
+
+.ai-chat-active-note:hover {
+	background: var(--background-modifier-border-hover);
+	color: var(--text-normal);
+}
+
+.ai-chat-active-note svg {
+	width: 12px;
+	height: 12px;
+	opacity: 0.7;
+	flex-shrink: 0;
+}
+
+.ai-chat-active-note span {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+/* Attachment chip strip — sits above the input card, lists pending @-mentions
+ * + active-note attachments for the next send. Hidden when empty. */
+.ai-chat-attachments {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+	padding: 4px 0;
+	min-height: 0;
+}
+
+.ai-chat-attachments:empty {
+	display: none;
+}
+
+.ai-chat-attachment-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 2px 8px;
+	background: var(--background-modifier-hover);
+	border-radius: 12px;
+	font-size: var(--font-ui-smaller);
+	color: var(--text-muted);
+}
+
+.ai-chat-attachment-name {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	max-width: 160px;
+}
+
+.ai-chat-attachment-remove {
+	cursor: pointer;
+	opacity: 0.6;
+	font-weight: bold;
+	line-height: 1;
+}
+
+.ai-chat-attachment-remove:hover {
+	opacity: 1;
+	color: var(--text-error);
+}
+
+/* Narrow viewports — give the header pill a tighter max-width so it doesn't
+ * crowd the model picker + history buttons on phones. */
+@media (max-width: 480px) {
+	.ai-chat-active-note {
+		max-width: 100px;
+	}
+
+	.ai-chat-attachment-name {
+		max-width: 120px;
+	}
+}
+
+
+/* --- System prompt: read-only CORE display --------------------------- */
+/* Greys out the non-editable Curtis identity textarea so users see the
+ * architecture: this is who Curtis IS, the lower box is what they're adding.
+ * Doubled selector raises specificity above Obsidian's base textarea rule
+ * without resorting to !important. */
+.ai-system-prompt-core textarea.ai-system-prompt-core,
+textarea.ai-system-prompt-core.ai-system-prompt-core {
+	background: var(--background-modifier-hover);
+	color: var(--text-muted);
+	font-family: var(--font-monospace);
+	font-size: var(--font-size-smaller);
+	cursor: default;
+	opacity: 0.85;
+}
+
+/* ============================================================================
+   DAY SEPARATOR — hairline rule with date label, sits between messages from
+   different days. Rendered by view.ts:renderDaySeparator().
+   ============================================================================ */
+
+.ai-chat-day-divider {
+	display: flex;
+	align-items: center;
+	gap: var(--size-4-2);
+	margin: var(--size-4-2) 0;
+	color: var(--text-faint);
+	font-size: var(--font-ui-smallest);
+	font-weight: 500;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	user-select: none;
+}
+
+.ai-chat-day-divider::before,
+.ai-chat-day-divider::after {
+	content: "";
+	flex: 1;
+	height: 1px;
+	background: var(--background-modifier-border);
+}
+
+/* First divider in a session doesn't need a leading rule — the messages
+ * container padding already provides separation from the header. */
+.ai-chat-day-divider:first-child::before {
+	display: none;
+}
+
+/* ============================================================================
+   USER MESSAGE ACTIONS — inline row below user bubble (Copy, Edit & resend).
+   Different from .ai-message-actions which floats absolute on assistant hover;
+   this sits in normal flow so it can't clip the bubble's tail.
+   ============================================================================ */
+
+.ai-user-actions {
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+	gap: 2px;
+	margin-top: 10px;
+	opacity: 0;
+	transition: opacity 0.12s ease;
+	pointer-events: none;
+}
+
+.ai-message-user:hover .ai-user-actions,
+.ai-user-actions:focus-within {
+	opacity: 1;
+	pointer-events: auto;
+}
+
+/* Re-use .ai-message-action-btn sizing/icon styling from the assistant rule.
+ * User-bubble context: buttons are tinted toward on-accent for legibility
+ * against the accent background when the bubble overlaps, but the actions row
+ * sits OUTSIDE the bubble in normal flow so default muted color is correct. */
+.ai-user-actions .ai-message-action-btn {
+	width: 22px;
+	height: 22px;
+	opacity: 0.7;
+}
+
+.ai-user-actions .ai-message-action-btn:hover {
+	opacity: 1;
+}
+
+/* Touch devices — always show user actions (no hover). */
+@media (hover: none) {
+	.ai-user-actions {
+		opacity: 1;
+		pointer-events: auto;
+	}
+}
+
+/* ============================================================================
+   TTS PLAYER BAR — inline under assistant message during playback.
+   Pause/resume, skip ±1 sentence, position (n/N), rate cycle, close.
+   ============================================================================ */
+
+/* Karaoke highlight — marks around the sentence being read. The spans are
+   transparent when idle so inline layout never shifts; wrapping is live-DOM
+   and unwrapped when playback ends. */
+.ai-tts-sent {
+	background: transparent;
+	border-radius: 2px;
+	transition: background-color 0.15s ease;
+}
+
+.ai-tts-sent.is-active {
+	background: var(--text-highlight-bg, rgba(255, 208, 0, 0.4));
+	color: inherit;
+}
+
+.ai-tts-player {
+	display: flex;
+	align-items: center;
+	gap: 2px;
+	margin-top: 6px;
+	padding: 4px 6px;
+	background: var(--background-secondary);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 10px;
+	box-shadow: 0 1px 2px var(--background-modifier-border);
+	font-size: var(--font-ui-smaller);
+	animation: ai-tts-fade-in 0.18s ease;
+}
+
+@keyframes ai-tts-fade-in {
+	from { opacity: 0; transform: translateY(-2px); }
+	to   { opacity: 1; transform: translateY(0); }
+}
+
+.ai-tts-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 24px;
+	height: 24px;
+	padding: 0;
+	border: none;
+	background: transparent;
+	color: var(--text-muted);
+	cursor: pointer;
+	border-radius: 6px;
+	transition: background 0.12s ease, color 0.12s ease;
+}
+
+.ai-tts-btn:hover:not(:disabled) {
+	background: var(--background-modifier-hover);
+	color: var(--text-normal);
+}
+
+.ai-tts-btn:active:not(:disabled) {
+	transform: scale(0.94);
+}
+
+.ai-tts-btn:disabled {
+	opacity: 0.35;
+	cursor: not-allowed;
+}
+
+.ai-tts-btn svg {
+	width: 14px;
+	height: 14px;
+}
+
+/* Rate button shows text ("1x") not an icon — slightly wider, tabular. */
+.ai-tts-rate {
+	width: auto;
+	min-width: 30px;
+	padding: 0 6px;
+	font-variant-numeric: tabular-nums;
+	font-size: var(--font-ui-smallest);
+	font-weight: 500;
+}
+
+.ai-tts-position {
+	font-variant-numeric: tabular-nums;
+	color: var(--text-faint);
+	font-size: var(--font-ui-smallest);
+	padding: 0 4px;
+	user-select: none;
+}
+
+.ai-tts-spacer {
+	flex: 1;
+	min-width: 4px;
+}
+
+/* Close button gets a subtler danger treatment on hover. */
+.ai-tts-close:hover:not(:disabled) {
+	color: var(--text-error);
+}
+
+/* On touch devices, the player shows a more prominent affordance. */
+@media (hover: none) {
+	.ai-tts-player {
+		padding: 6px 8px;
+	}
+
+	.ai-tts-btn {
+		width: 28px;
+		height: 28px;
+	}
+
+	.ai-tts-btn svg {
+		width: 16px;
+		height: 16px;
+	}
+}
+
+/* ============================================================================
+   BUBBLE CONTENT — make assistant/user text selectable for copy.
+   Default .markdown-rendered and bubble content is selectable in Obsidian,
+   but our white-space: pre-wrap on user bubbles can break selection on some
+   platforms; enforce explicitly.
+   ============================================================================ */
+
+.ai-message-content {
+	user-select: text;
+	-webkit-user-select: text;
+}
+
+
+/* ============================================================================
+   MEMORY PROPOSALS — confirm-mode capture bar ("Worth remembering?").
+   Appears under the last assistant message after a turn; transient — sending
+   the next message clears it. Nothing is saved until the user taps Save.
+   ============================================================================ */
+
+.ai-memory-proposal-bar {
+	display: flex;
+	flex-direction: column;
+	gap: var(--size-4-1);
+	margin: var(--size-4-1) 0 var(--size-4-2);
+	padding: var(--size-4-2) var(--size-4-3);
+	background: var(--background-secondary);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-m);
+}
+
+.ai-memory-proposal-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.ai-memory-proposal-title {
+	font-size: var(--font-ui-smallest);
+	font-weight: var(--font-medium);
+	color: var(--text-muted);
+}
+
+.ai-memory-proposal-close {
+	box-shadow: none;
+	background: none;
+	height: auto;
+	padding: 2px;
+	color: var(--text-faint);
+}
+
+.ai-memory-proposal-close:hover {
+	color: var(--text-normal);
+}
+
+.ai-memory-proposal-row {
+	display: flex;
+	align-items: center;
+	gap: var(--size-4-2);
+}
+
+.ai-memory-proposal-text {
+	flex: 1;
+	font-size: var(--font-ui-smaller);
+	color: var(--text-normal);
+	min-width: 0;
+}
+
+.ai-memory-proposal-row.is-saved .ai-memory-proposal-text {
+	color: var(--text-success);
+}
+
+.ai-memory-proposal-actions {
+	display: flex;
+	gap: var(--size-4-1);
+	flex-shrink: 0;
+}
+
+.ai-memory-proposal-actions button {
+	font-size: var(--font-ui-smaller);
+	padding: 2px 10px;
+}
+
+/* ==========================================================================
+   .curt import view — landing page when a .curt file is opened in the vault
+   ========================================================================== */
+
+.curt-import-view {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: var(--size-4-6);
+}
+
+.curt-import-card {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--size-4-2);
+	max-width: 420px;
+	padding: var(--size-4-6);
+	text-align: center;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-l);
+	background: var(--background-secondary);
+}
+
+.curt-import-icon {
+	width: 48px;
+	height: 48px;
+	color: var(--interactive-accent);
+}
+
+.curt-import-icon .svg-icon {
+	width: 100%;
+	height: 100%;
+}
+
+.curt-import-title {
+	font-size: var(--font-ui-large);
+	font-weight: var(--font-semibold);
+	color: var(--text-normal);
+	word-break: break-word;
+}
+
+.curt-import-meta {
+	font-size: var(--font-ui-smaller);
+	color: var(--text-muted);
+}
+
+.curt-import-actions {
+	display: flex;
+	gap: var(--size-4-2);
+	margin-top: var(--size-4-2);
+}
+
+.curt-import-error {
+	color: var(--text-error);
+	font-size: var(--font-ui-medium);
+	text-align: center;
+	padding: var(--size-4-6);
+}
+
+/* Import summary modal — per-file breakdown after a run */
+.curt-import-summary {
+	max-width: 480px;
+}
+
+.curt-import-summary-title {
+	font-size: var(--font-ui-large);
+	font-weight: var(--font-semibold);
+	margin-bottom: var(--size-2-2);
+}
+
+.curt-import-summary-headline {
+	color: var(--text-muted);
+	margin-bottom: var(--size-4-2);
+}
+
+.curt-import-summary-row {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--size-4-2);
+	padding: var(--size-2-1) 0;
+}
+
+.curt-import-summary-icon {
+	color: var(--text-success);
+	flex-shrink: 0;
+	padding-top: 2px;
+}
+
+.curt-import-summary-icon.is-error {
+	color: var(--text-error);
+}
+
+.curt-import-summary-body {
+	min-width: 0;
+}
+
+.curt-import-summary-file {
+	font-size: var(--font-ui-medium);
+	color: var(--text-normal);
+	word-break: break-all;
+}
+
+.curt-import-summary-detail {
+	font-size: var(--font-ui-smaller);
+	color: var(--text-muted);
+}
+
+.curt-import-summary-actions {
+	display: flex;
+	justify-content: flex-end;
+	margin-top: var(--size-4-2);
+}
+
+/* ====== TERMINAL PANE ====== */
+/* Desktop-only shell pane. Own window or tab; monospace, theme variables
+   only. The run-command confirm modal (agent-initiated shell) lives here
+   too — same family, same settings section. */
+
+.ai-term-view {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	padding: 0;
+	background: var(--background-primary);
+}
+
+.ai-term-view .is-hidden {
+	display: none;
+}
+
+.ai-term-topbar {
+	display: flex;
+	align-items: center;
+	gap: var(--size-4-1);
+	padding: var(--size-2-1) var(--size-4-3);
+	border-bottom: 1px solid var(--background-modifier-border);
+	background: var(--background-secondary);
+	min-height: var(--size-4-4);
+}
+
+.ai-term-cwd {
+	display: flex;
+	align-items: center;
+	gap: var(--size-2-1);
+	min-width: 0;
+	flex: 1;
+	padding: var(--size-2-1) var(--size-2-2);
+	border: none;
+	border-radius: var(--radius-s);
+	background: transparent;
+	color: var(--text-muted);
+	font-family: var(--font-monospace);
+	font-size: var(--font-ui-smaller);
+	cursor: pointer;
+	text-align: left;
+}
+
+.ai-term-cwd:hover {
+	background: var(--background-modifier-hover);
+	color: var(--text-normal);
+}
+
+.ai-term-cwd-label {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	direction: rtl;
+	/* Keep the tail of the path visible — the deepest folder is the
+	   informative end, so truncate the head. */
+}
+
+.ai-term-cwd .svg-icon {
+	flex-shrink: 0;
+}
+
+.ai-term-shell {
+	flex-shrink: 0;
+	padding: 1px var(--size-2-1);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-s);
+	color: var(--text-muted);
+	font-family: var(--font-monospace);
+	font-size: var(--font-ui-smaller);
+}
+
+.ai-term-iconbtn {
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: var(--size-2-1);
+	background: transparent;
+	border: none;
+	border-radius: var(--radius-s);
+	color: var(--text-muted);
+	cursor: pointer;
+	transition:
+		background var(--curtis-motion),
+		color var(--curtis-motion),
+		box-shadow var(--curtis-motion);
+}
+
+.ai-term-iconbtn:focus-visible {
+	outline: none;
+	box-shadow:
+		0 0 0 2px var(--background-primary),
+		0 0 0 4px var(--background-modifier-border-focus);
+}
+
+.ai-term-iconbtn:hover {
+	background: var(--background-modifier-hover);
+	color: var(--text-normal);
+}
+
+.ai-term-iconbtn.is-hidden {
+	display: none;
+}
+
+/* Stop while running speaks — error color + the same breathing ring as the
+ * chat abort button, so "stop" reads as "stop" in every pane. */
+.ai-term-iconbtn.is-running {
+	color: var(--text-error);
+	animation: ai-breathe 2.2s cubic-bezier(0.22, 0.61, 0.36, 1) infinite;
+}
+
+.ai-term-scroll {
+	flex: 1;
+	overflow-y: auto;
+	padding: var(--size-4-3);
+	font-family: var(--font-monospace);
+	font-size: var(--font-ui-smaller);
+	line-height: 1.5;
+	/* Obsidian's custom views don't opt into text selection by default —
+	   enforce it explicitly (same as .ai-message-content): terminal output
+	   exists to be selected and copied. */
+	user-select: text;
+	-webkit-user-select: text;
+}
+
+.ai-term-note {
+	color: var(--text-faint);
+	margin-bottom: var(--size-2-2);
+}
+
+.ai-term-banner {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--size-2-2);
+	margin-bottom: var(--size-2-2);
+	padding-bottom: var(--size-2-2);
+	border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.ai-term-banner-mark {
+	flex-shrink: 0;
+	display: flex;
+	padding-top: 2px;
+	color: var(--interactive-accent);
+}
+
+.ai-term-banner-mark .svg-icon {
+	width: 16px;
+	height: 16px;
+}
+
+.ai-term-banner-title {
+	color: var(--text-muted);
+	font-size: var(--font-ui-small);
+}
+
+.ai-term-banner-hint {
+	color: var(--text-faint);
+	margin-top: 2px;
+}
+
+.ai-term-block {
+	margin-bottom: var(--size-2-2);
+}
+
+.ai-term-block pre {
+	margin: 0;
+	padding: 0;
+	background: transparent;
+	border: none;
+	white-space: pre-wrap;
+	word-break: break-word;
+	font-family: inherit;
+	font-size: inherit;
+}
+
+.ai-term-cmdline {
+	color: var(--text-normal);
+}
+
+.ai-term-cmdline .ai-term-prompt {
+	color: var(--interactive-accent);
+	margin-right: var(--size-2-1);
+	user-select: none;
+}
+
+.ai-term-stdout {
+	color: var(--text-normal);
+}
+
+.ai-term-stderr {
+	color: var(--text-error);
+}
+
+.ai-term-exit {
+	margin-top: var(--size-2-1);
+	font-size: var(--font-ui-smaller);
+	/* Exit codes are numeric state — tabular figures keep the column steady. */
+	font-variant-numeric: tabular-nums;
+}
+
+.ai-term-exit-ok {
+	color: var(--text-faint);
+}
+
+.ai-term-exit-fail {
+	color: var(--text-error);
+}
+
+.ai-term-inputbar {
+	display: flex;
+	align-items: center;
+	gap: var(--size-2-1);
+	padding: var(--size-2-2) var(--size-4-2);
+	border-top: 1px solid var(--background-modifier-border);
+	background: var(--background-secondary);
+}
+
+.ai-term-inputbar .ai-term-prompt {
+	flex-shrink: 0;
+	color: var(--interactive-accent);
+	font-family: var(--font-monospace);
+	font-size: var(--font-ui-small);
+}
+
+.ai-term-input {
+	flex: 1;
+	padding: var(--size-2-1) 0;
+	background: transparent;
+	border: none;
+	box-shadow: none;
+	color: var(--text-normal);
+	font-family: var(--font-monospace);
+	font-size: var(--font-ui-small);
+}
+
+.ai-term-input:disabled {
+	color: var(--text-faint);
+	background: transparent;
+	cursor: not-allowed;
+}
+
+/* Prompt dims while a command runs — the disabled input state extends to
+ * the line's prefix, not just the field. */
+.ai-term-inputbar .ai-term-prompt.dim {
+	color: var(--text-faint);
+}
+
+.ai-term-input:focus {
+	border: none;
+	box-shadow: none;
+}
+
+/* Ctrl+R reverse history search — the "(r-search)" badge beside the prompt,
+ * turned in the theme's error color while the query matches nothing. */
+.ai-term-search-hint {
+	flex-shrink: 0;
+	color: var(--interactive-accent);
+	font-family: var(--font-monospace);
+	font-size: var(--font-ui-small);
+	white-space: nowrap;
+}
+
+.ai-term-search-hint.is-failed {
+	color: var(--text-error);
+}
+
+/* A stream that hit the capture cap says so, quietly. */
+.ai-term-truncated {
+	color: var(--text-faint);
+	font-style: italic;
+}
+
+/* Bare URLs in command output are clickable. */
+.ai-term-scroll a {
+	color: var(--interactive-accent);
+	text-decoration: none;
+}
+
+.ai-term-scroll a:hover {
+	text-decoration: underline;
+}
+
+/* ---- ANSI colors (terminal/ansi.ts span tokens) ----
+ * Fixed palette slots, theme-adapted: dark follows the GitHub Dark set,
+ * light the GitHub Light set, both chosen so every slot stays legible on
+ * its background (ANSI "black"/"white" are mid-grays here — a literal
+ * black on a dark background would be invisible). Extended 256/24-bit
+ * colors arrive as direct rgb() styles on the span, not classes. */
+.ai-ansi-bold { font-weight: 700; }
+.ai-ansi-dim { opacity: 0.6; }
+.ai-ansi-italic { font-style: italic; }
+.ai-ansi-underline { text-decoration: underline; }
+
+.theme-dark .ai-ansi-fg-black { color: #8b949e; }
+.theme-dark .ai-ansi-fg-red { color: #ff7b72; }
+.theme-dark .ai-ansi-fg-green { color: #7ee787; }
+.theme-dark .ai-ansi-fg-yellow { color: #ffa657; }
+.theme-dark .ai-ansi-fg-blue { color: #79c0ff; }
+.theme-dark .ai-ansi-fg-magenta { color: #d2a8ff; }
+.theme-dark .ai-ansi-fg-cyan { color: #56d4dd; }
+.theme-dark .ai-ansi-fg-white { color: #e6edf3; }
+.theme-dark .ai-ansi-fg-bright-black { color: #6e7681; }
+.theme-dark .ai-ansi-fg-bright-red { color: #ffa198; }
+.theme-dark .ai-ansi-fg-bright-green { color: #aff5b4; }
+.theme-dark .ai-ansi-fg-bright-yellow { color: #fdd678; }
+.theme-dark .ai-ansi-fg-bright-blue { color: #a5d6ff; }
+.theme-dark .ai-ansi-fg-bright-magenta { color: #e2c5ff; }
+.theme-dark .ai-ansi-fg-bright-cyan { color: #9decf1; }
+.theme-dark .ai-ansi-fg-bright-white { color: #ffffff; }
+.theme-dark .ai-ansi-bg-black { background-color: #6e7681; }
+.theme-dark .ai-ansi-bg-red { background-color: #ff7b72; }
+.theme-dark .ai-ansi-bg-green { background-color: #7ee787; }
+.theme-dark .ai-ansi-bg-yellow { background-color: #ffa657; }
+.theme-dark .ai-ansi-bg-blue { background-color: #79c0ff; }
+.theme-dark .ai-ansi-bg-magenta { background-color: #d2a8ff; }
+.theme-dark .ai-ansi-bg-cyan { background-color: #56d4dd; }
+.theme-dark .ai-ansi-bg-white { background-color: #e6edf3; }
+.theme-dark .ai-ansi-bg-bright-black { background-color: #8b949e; }
+.theme-dark .ai-ansi-bg-bright-red { background-color: #ffa198; }
+.theme-dark .ai-ansi-bg-bright-green { background-color: #aff5b4; }
+.theme-dark .ai-ansi-bg-bright-yellow { background-color: #fdd678; }
+.theme-dark .ai-ansi-bg-bright-blue { background-color: #a5d6ff; }
+.theme-dark .ai-ansi-bg-bright-magenta { background-color: #e2c5ff; }
+.theme-dark .ai-ansi-bg-bright-cyan { background-color: #9decf1; }
+.theme-dark .ai-ansi-bg-bright-white { background-color: #ffffff; }
+
+.theme-light .ai-ansi-fg-black { color: #1f2328; }
+.theme-light .ai-ansi-fg-red { color: #cf222e; }
+.theme-light .ai-ansi-fg-green { color: #116329; }
+.theme-light .ai-ansi-fg-yellow { color: #9a6700; }
+.theme-light .ai-ansi-fg-blue { color: #0550ae; }
+.theme-light .ai-ansi-fg-magenta { color: #8250df; }
+.theme-light .ai-ansi-fg-cyan { color: #1b7c83; }
+.theme-light .ai-ansi-fg-white { color: #57606a; }
+.theme-light .ai-ansi-fg-bright-black { color: #57606a; }
+.theme-light .ai-ansi-fg-bright-red { color: #a40e26; }
+.theme-light .ai-ansi-fg-bright-green { color: #1a7f37; }
+.theme-light .ai-ansi-fg-bright-yellow { color: #bf8700; }
+.theme-light .ai-ansi-fg-bright-blue { color: #0969da; }
+.theme-light .ai-ansi-fg-bright-magenta { color: #6639ba; }
+.theme-light .ai-ansi-fg-bright-cyan { color: #3192aa; }
+.theme-light .ai-ansi-fg-bright-white { color: #1f2328; }
+.theme-light .ai-ansi-bg-black { background-color: #57606a; }
+.theme-light .ai-ansi-bg-red { background-color: #cf222e; }
+.theme-light .ai-ansi-bg-green { background-color: #116329; }
+.theme-light .ai-ansi-bg-yellow { background-color: #9a6700; }
+.theme-light .ai-ansi-bg-blue { background-color: #0550ae; }
+.theme-light .ai-ansi-bg-magenta { background-color: #8250df; }
+.theme-light .ai-ansi-bg-cyan { background-color: #1b7c83; }
+.theme-light .ai-ansi-bg-white { background-color: #d1d9e0; }
+.theme-light .ai-ansi-bg-bright-black { background-color: #8c959f; }
+.theme-light .ai-ansi-bg-bright-red { background-color: #a40e26; }
+.theme-light .ai-ansi-bg-bright-green { background-color: #1a7f37; }
+.theme-light .ai-ansi-bg-bright-yellow { background-color: #bf8700; }
+.theme-light .ai-ansi-bg-bright-blue { background-color: #0969da; }
+.theme-light .ai-ansi-bg-bright-magenta { background-color: #6639ba; }
+.theme-light .ai-ansi-bg-bright-cyan { background-color: #3192aa; }
+.theme-light .ai-ansi-bg-bright-white { background-color: #ffffff; }
+
+/* Agent-initiated command confirmation */
+.ai-run-command-modal .ai-run-command-hint {
+	margin-bottom: var(--size-2-2);
+	color: var(--text-muted);
+	font-size: var(--font-ui-small);
+}
+
+.ai-run-command-modal .ai-run-command-cwd {
+	display: flex;
+	gap: var(--size-2-2);
+	margin-bottom: var(--size-2-1);
+	font-family: var(--font-monospace);
+	font-size: var(--font-ui-smaller);
+	color: var(--text-muted);
+	word-break: break-all;
+}
+
+.ai-run-command-modal .ai-run-command-cwd-label {
+	flex-shrink: 0;
+	font-family: var(--font-interface);
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: var(--text-faint);
+}
+
+.ai-run-command-modal .ai-run-command-cmd {
+	max-height: 200px;
+	overflow: auto;
+	margin: 0 0 var(--size-4-2);
+	padding: var(--size-2-2) var(--size-2-3);
+	background: var(--background-secondary);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-m);
+	font-family: var(--font-monospace);
+	font-size: var(--font-ui-small);
+	color: var(--text-normal);
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+/* ============================================================================
+   Inline autocomplete — editor ghost text
+   Dimmed continuation rendered after the cursor. color-only (no italic —
+   italic shifts glyph widths and the ghost visibly jitters as it renders).
+   ============================================================================ */
+
+.cm-ghost-suggestion {
+	color: var(--text-faint);
+	opacity: 0.8;
+	white-space: pre-wrap;
+	pointer-events: none;
+}
+
+/* ============================================================================
+   Curtis mark lockup — modal titles and the settings About row
+   Flex row with a fixed-size mark. The C carries the frozen identity green
+   (curtis-ai-tech tokens.json — ink #23A45F on dark, paper #0E7A45 on light);
+   the dot keeps the surface's writing color via currentColor.
+   ============================================================================ */
+
+.curtis-mark-title {
+	display: flex;
+	align-items: center;
+	gap: var(--size-2-2);
+	/* One lockup — mark + title at the same size in every branded modal. */
+	font-size: var(--font-ui-medium);
+}
+
+.curtis-mark-title .curtis-modal-title-icon {
+	flex-shrink: 0;
+}
+
+.curtis-mark-title .curtis-modal-title-icon .svg-icon {
+	width: 16px;
+	height: 16px;
+}
+
+/* Two-color lockup treatment, scoped here only — the ribbon, tab, and menu
+ * mark stays monochrome currentColor like every built-in Lucide icon. */
+.curtis-mark-title .curtis-modal-title-icon .svg-icon path {
+	stroke: #23a45f;
+}
+
+.theme-light .curtis-mark-title .curtis-modal-title-icon .svg-icon path {
+	stroke: #0e7a45;
+}
+
+/* The arena modal's lockup is an in-flow h2 (plain Modal, no titleEl) — pin
+ * its margin so both modals rhythm-match the search input's padding. */
+h2.curtis-mark-title {
+	margin: 0 0 var(--size-4-2);
+}
+
+/* NEWELL maker badge pinned to the bottom-right of the About settings block.
+ * URI inlined by scripts/inline-logo.mjs from assets/newell-badge.png. */
+.curtis-about-wrap {
+	position: relative;
+}
+
+.curtis-newell-badge {
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	width: 48px;
+	height: 48px;
+	background: url('data:image/png;base64,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') center / contain no-repeat;
+	/* Keep the author line clear of the badge at narrow widths. */
+	min-height: 48px;
+}
+
+/* ============================================================================
+   SETTINGS PANE — the Curtis settings design system (round 2).
+   Scoped to .curtis-settings (added to the tab container in settings.ts) so
+   core panes and other plugins' settings are untouched. Theme variables only.
+   ============================================================================ */
+
+/* S1 — flat editorial rhythm. Obsidian 1.13 renders rows as cards (border +
+ * background-secondary + radius + margin); inside this tab the chrome is
+ * neutralized and rows read as hairline-separated editorial lines instead.
+ * Group headings carry the inter-section gap (S4). */
+.curtis-settings .setting-item {
+	background: transparent;
+	border: none;
+	border-radius: 0;
+	margin: 0;
+	padding: var(--size-4-4) 0;
+}
+
+.curtis-settings .setting-group .setting-item:not(:last-child) {
+	border-bottom: 1px solid var(--background-modifier-border);
+}
+
+/* S2 — text hierarchy: name carries, description recedes, 4px gap. */
+.curtis-settings .setting-item-name {
+	color: var(--text-normal);
+	font-weight: var(--font-medium);
+}
+
+.curtis-settings .setting-item-description {
+	color: var(--text-muted);
+	margin-top: var(--size-2-1);
+}
+
+/* S5 — descriptions measure like reading matter: 58ch max, pretty wrap
+ * kills the orphaned last line. */
+.curtis-settings .setting-item-description {
+	max-width: 58ch;
+	text-wrap: pretty;
+}
+
+/* S3 — one control rail: dropdowns, text fields and sliders share a 264px
+ * right-aligned edge, so the column reads as engineered, not accumulated.
+ * `min()` lets the rail shrink with the pane so it never fights Obsidian's
+ * own container-query row stacking; right alignment holds only on wide
+ * panes (see the @container rule below). */
+.curtis-settings .setting-item-control {
+	min-width: min(264px, 100%);
+	justify-content: flex-end;
+	gap: var(--size-4-2);
+	/* Rows whose rail holds a control + button (e.g. the provider Scope
+	 * dropdown + reset) measured 30px+ past the rail — wrap instead of
+	 * overflow; no effect on single-control rows. */
+	flex-wrap: wrap;
+	row-gap: var(--size-2-1);
+}
+
+.curtis-settings .setting-item-control select,
+.curtis-settings .setting-item-control input[type='text'],
+.curtis-settings .setting-item-control input[type='password'] {
+	width: 264px;
+	max-width: 100%;
+}
+
+.curtis-settings .setting-item-control input[type='range'] {
+	width: 264px;
+	max-width: 100%;
+}
+
+/* S3 — narrow pane: when the tab content stacks rows (Obsidian's own
+ * container query), controls drop to the left edge with the description
+ * instead of floating right. Touch devices get the same via the
+ * (hover: none) block below. */
+@container (max-width: 700px) {
+	.curtis-settings .setting-item-control {
+		justify-content: flex-start;
+	}
+}
+
+/* S3 — slider readout: the value visible without scrubbing. */
+.ai-slider-readout {
+	flex-shrink: 0;
+	min-width: 5ch;
+	text-align: end;
+	color: var(--text-muted);
+	font-size: var(--font-ui-smaller);
+	font-variant-numeric: tabular-nums;
+}
+
+/* S4 — section headers on the 2.0 system: uppercase letterspaced micro-label
+ * with a hairline, not a 20px bold. Obsidian 1.13.7 renders declarative
+ * group headings as `.setting-group > .setting-item-heading` (there is no
+ * `.setting-group-heading` class — round 2 targeted a ghost). The text
+ * lives in `.setting-item-name`, which S2 restyles, so the treatment is
+ * re-asserted on the name itself rather than left to inheritance. The About
+ * group's mark lockup lives inside the row body, so it stays untouched. */
+.curtis-settings .setting-group > .setting-item-heading {
+	margin: var(--size-4-6) 0 var(--size-4-2);
+	padding: 0 0 var(--size-4-2);
+	border-bottom: 1px solid var(--background-modifier-border);
+	color: var(--text-muted);
+	font-size: var(--font-ui-smallest);
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+}
+
+.curtis-settings .setting-group > .setting-item-heading .setting-item-name {
+	color: var(--text-muted);
+	font-size: var(--font-ui-smallest);
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+}
+
+/* S8 — icon-only extras join the ghost-button family: 28px target, md
+ * radius, the shared motion token, quiet → normal on hover. Destructive
+ * actions stay mod-destructive / var(--text-error) — untouched here. */
+.curtis-settings .setting-item-control .extra-setting-button {
+	width: 28px;
+	height: 28px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: var(--radius-m);
+	color: var(--text-muted);
+	transition:
+		background var(--curtis-motion),
+		color var(--curtis-motion);
+}
+
+.curtis-settings .setting-item-control .extra-setting-button:hover {
+	background: var(--background-modifier-hover);
+	color: var(--text-normal);
+}
+
+/* S6 — focus-visible parity: the round-1 double ring on every control in
+ * the pane — inputs, selects, textareas, toggles, extra buttons, CTA
+ * buttons, and the advanced-params disclosure. (Checkbox containers are a
+ * label and stock 1.13 already rings them — no rule here.) */
+.curtis-settings .setting-item-control input:focus-visible,
+.curtis-settings .setting-item-control select:focus-visible,
+.curtis-settings .setting-item-control textarea:focus-visible,
+.curtis-settings .setting-item-control .extra-setting-button:focus-visible,
+.curtis-settings .setting-item-control button:focus-visible,
+.curtis-settings details.ai-advanced-params > summary:focus-visible {
+	outline: none;
+	box-shadow:
+		0 0 0 2px var(--background-primary),
+		0 0 0 4px var(--background-modifier-border-focus);
+}
+
+/* S7 — the advanced-params disclosure earns its affordance: a chevron that
+ * rotates open, a hover surface, the shared motion, and the "(N set)" count
+ * as a tabular pill. Nested rows read inside the card via a quiet inset
+ * surface when open. */
+.ai-provider-settings details.ai-advanced-params > summary {
+	display: flex;
+	align-items: center;
+	gap: var(--size-4-2);
+	padding: var(--size-4-1) var(--size-4-2);
+	margin: calc(var(--size-4-1) * -1) calc(var(--size-4-2) * -1);
+	border-radius: var(--radius-m);
+	transition: background var(--curtis-motion), color var(--curtis-motion);
+	list-style: none;
+	cursor: pointer;
+	color: var(--text-muted);
+	font-weight: 500;
+}
+
+.ai-provider-settings details.ai-advanced-params > summary::-webkit-details-marker {
+	display: none;
+}
+
+/* Chevron affordance — a disclosure you can't miss. */
+.ai-provider-settings details.ai-advanced-params > summary::before {
+	content: '';
+	width: 0; height: 0;
+	flex-shrink: 0;
+	border-right: 4px solid transparent;
+	border-left: 4px solid transparent;
+	border-top: 5px solid var(--text-faint);
+	transition: transform var(--curtis-motion);
+	transform: rotate(-90deg);
+	margin-left: 2px;
+}
+
+.ai-provider-settings details.ai-advanced-params[open] > summary::before {
+	transform: rotate(0deg);
+	border-top-color: var(--text-muted);
+}
+
+.ai-provider-settings details.ai-advanced-params > summary:hover {
+	background: var(--background-modifier-hover);
+	color: var(--text-normal);
+}
+
+.ai-provider-settings details.ai-advanced-params > summary:hover::before {
+	border-top-color: var(--text-normal);
+}
+
+.ai-advanced-count {
+	flex-shrink: 0;
+	padding: 0 var(--size-2-2);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 999px;
+	color: var(--text-muted);
+	font-size: var(--font-ui-smallest);
+	font-variant-numeric: tabular-nums;
+}
+
+.ai-provider-settings details.ai-advanced-params[open] {
+	background: color-mix(in srgb, var(--background-modifier-hover) 35%, transparent);
+}
+
+/* S9 — MCP connection status colors on the server-card Status row (the
+ * classes land on .setting-item-description, so they out-rank S2's muted). */
+.curtis-settings .ai-mcp-status-connected {
+	color: var(--color-green);
+	font-size: var(--font-ui-smallest);
+}
+
+.curtis-settings .ai-mcp-status-error {
+	color: var(--text-error);
+	font-size: var(--font-ui-smallest);
+}
+
+/* S9 — GCP connector status row: same contract as the MCP ones. */
+.curtis-settings .ai-gcp-status-connected {
+	color: var(--color-green);
+	font-size: var(--font-ui-smallest);
+}
+
+.curtis-settings .ai-gcp-status-error {
+	color: var(--text-error);
+	font-size: var(--font-ui-smallest);
+}
+
+/* S9 — pasted JSON blobs read as code: monospace in the stock form-field
+ * textarea (GCP service-account key). */
+.curtis-settings textarea.ai-json-paste {
+	font-family: var(--font-monospace);
+	font-size: var(--font-ui-small);
+	border-radius: var(--radius-s);
+}
+
+/* S9 — extra-body passthrough reads as code: monospace in the stock
+ * form-field textarea, matching the manual-model input's radius. */
+.curtis-settings textarea.ai-extra-body-json {
+	font-family: var(--font-monospace);
+	font-size: var(--font-ui-small);
+	border-radius: var(--radius-s);
+}
+
+/* S9 — general hint paragraphs created imperatively (the details variant
+ * above keeps its own spacing); the privacy callout keeps its boxed
+ * treatment, so it is excluded here. */
+/* Unscoped on purpose: modals (agent editor, MCP, custom provider) use the
+ * same hint class outside the settings tab. */
+.ai-setting-hint:not(.ai-privacy-note) {
+	margin-top: var(--size-2-2);
+	color: var(--text-muted);
+	font-size: var(--font-ui-smallest);
+}
+
+/* Form errors in modals (custom-provider, MCP server) — were unstyled
+ * paragraphs; now they read as errors. */
+.ai-form-error,
+.ai-modal-error {
+	margin-top: var(--size-2-2);
+	color: var(--text-error);
+	font-size: var(--font-ui-smallest);
+}
+
+/* row() builds its Setting INSIDE the framework's own .setting-item, whose
+ * stock display is a flex row — the nested row becomes a flex item that can
+ * shrink below its content, and its label column (min-width 0) collapses to
+ * zero whenever name + description + the 264px control rail exceed the row
+ * width (long-text rows rendered as bare toggles). Nested rows fill their
+ * host row instead; the label wraps rather than vanishing. */
+.curtis-settings .setting-item > .setting-item {
+	flex: 1 1 auto;
+	width: 100%;
+}
+
+/* S9 — provider cards are flattened by the pane system above; keep their
+ * internal compact rhythm and the card title as a plain label (the old
+ * `h4` rule was dead — setHeading never creates an h4).
+ *
+ * The card container IS Obsidian's .setting-item (the render callback
+ * empties settingEl and rebuilds inside it), whose stock layout is a
+ * horizontal flex row — without this override the card's rows smear
+ * side-by-side (same trap noted at settings.ts ~2205). */
+.curtis-settings .ai-provider-settings {
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+}
+
+.curtis-settings .ai-provider-settings .setting-item {
+	padding: var(--size-4-1) 0;
+}
+
+.curtis-settings .ai-provider-settings .setting-item + .setting-item {
+	border-top: 1px solid var(--background-modifier-border);
+}
+
+.curtis-settings .ai-provider-settings .setting-item-heading {
+	padding: 0 0 var(--size-4-1);
+}
+
+.curtis-settings .ai-provider-settings .setting-item-heading .setting-item-name {
+	margin: 0;
+	color: var(--text-normal);
+	font-size: var(--font-ui-medium);
+	font-weight: 600;
+	text-transform: none;
+	letter-spacing: normal;
+}
+
+/* ============================================================================
+   MOBILE ROUND 2 — touch-only layout changes. Desktop rendering is
+   unchanged: everything below is @media (hover: none) or .is-mobile scoped.
+   ============================================================================ */
+
+/* M7 — run-command footer for thumbs: Run once (primary) spans the top,
+ * Deny | Always this session share the second row. Desktop keeps the
+ * single inline row. */
+@media (hover: none) {
+	.ai-run-command-modal .setting-item {
+		display: block;
+		border-top: none;
+	}
+
+	.ai-run-command-modal .setting-item-control {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: var(--size-4-2);
+		width: 100%;
+	}
+
+	.ai-run-command-modal .setting-item-control button {
+		min-height: 44px;
+		border-radius: var(--radius-m);
+	}
+
+	.ai-run-command-modal .setting-item-control .mod-cta {
+		grid-column: 1 / -1;
+		order: -1;
+	}
+}
+
+/* M4 — topbar re-composed for 390: the model picker now lives in the
+ * composer row (moved in view.ts), styled as a quiet chip; the active-note
+ * pill collapses to an icon-only 40px hit target. Desktop topbar: untouched
+ * (the picker never leaves the title row there). */
+.is-mobile .ai-chat-btn-row .ai-model-picker-btn {
+	min-height: 44px;
+	min-width: 0;
+	max-width: 55%;
+	padding: var(--size-4-1) var(--size-4-2);
+	background: transparent;
+	font-size: var(--font-ui-smaller);
+}
+
+.is-mobile .ai-chat-btn-row .ai-model-picker-btn-provider {
+	display: none;
+}
+
+.is-mobile .ai-chat-btn-row .ai-model-picker-btn-text {
+	gap: var(--size-2-2);
+}
+
+.is-mobile .ai-chat-active-note.is-compact {
+	width: 40px;
+	height: 40px;
+	max-width: none;
+	padding: 0;
+	justify-content: center;
+	gap: 0;
+	border-radius: var(--radius-m);
+}
+
+.is-mobile .ai-chat-active-note.is-compact span {
+	display: none;
+}
+
+.is-mobile .ai-chat-active-note.is-compact .svg-icon {
+	width: 18px;
+	height: 18px;
+	opacity: 1;
+}
+
+/* M8 — settings rows stack clean at 390: the control drops full-width
+ * (Obsidian's mobile stacking is kept), toggles grow to a 44px hit, icon
+ * extras grow with them, sliders run the row with their readout at the
+ * rail's end. */
+@media (hover: none) {
+	.curtis-settings .setting-item {
+		flex-wrap: wrap;
+	}
+
+	.curtis-settings .setting-item-control {
+		min-width: 0;
+		width: 100%;
+		justify-content: flex-start;
+	}
+
+	.curtis-settings .setting-item-control select,
+	.curtis-settings .setting-item-control input[type='text'],
+	.curtis-settings .setting-item-control input[type='password'],
+	.curtis-settings .setting-item-control input[type='range'] {
+		flex: 1;
+		width: auto;
+		min-width: 0;
+	}
+
+	.curtis-settings .checkbox-container {
+		min-width: 44px;
+		height: 26px;
+	}
+
+	.curtis-settings .checkbox-container:after {
+		left: 3px;
+		top: 3px;
+		width: 20px;
+		height: 20px;
+	}
+
+	.curtis-settings .checkbox-container.is-enabled:after {
+		left: 21px;
+	}
+
+	.curtis-settings .setting-item-control .extra-setting-button {
+		width: 44px;
+		height: 44px;
+	}
+}
+
+/* Slash help modal — filter input + empty state */
+.ai-slash-help-filter {
+	width: 100%;
+	margin-bottom: var(--size-4-3);
+	padding: var(--size-4-1) var(--size-4-2);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-s);
+	background: var(--background-primary);
+	color: var(--text-normal);
+}
+
+.ai-slash-help-filter:focus {
+	border-color: var(--interactive-accent);
+	outline: none;
+	box-shadow: none;
+}
+
+.ai-slash-help-empty {
+	padding: var(--size-4-4) 0;
+	color: var(--text-faint);
+	font-size: var(--font-ui-smaller);
+	text-align: center;
+}
+
+/* Extended thinking (Anthropic) — collapsible reasoning block above the answer */
+.ai-thinking-host {
+	margin-bottom: var(--size-4-2);
+}
+
+.ai-thinking-block {
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-s);
+	background: var(--background-secondary);
+	overflow: hidden;
+}
+
+.ai-thinking-block > summary.ai-thinking-summary {
+	cursor: pointer;
+	user-select: none;
+	padding: var(--size-4-1) var(--size-4-2);
+	color: var(--text-muted);
+	font-size: var(--font-ui-smaller);
+	font-weight: 500;
+}
+
+.ai-thinking-block.is-streaming > summary.ai-thinking-summary::after {
+	content: '…';
+	margin-left: var(--size-4-1);
+	animation: ai-thinking-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes ai-thinking-pulse {
+	0%, 100% { opacity: 0.25; }
+	50% { opacity: 1; }
+}
+
+.ai-thinking-block > .ai-thinking-content {
+	padding: 0 var(--size-4-2) var(--size-4-2);
+	color: var(--text-muted);
+	font-size: var(--font-ui-smaller);
+	white-space: pre-wrap;
+	word-break: break-word;
+	max-height: 260px;
+	overflow-y: auto;
+}
+
+/* Arena columns: tighter fit inside the narrow response area */
+.ai-arena-column > .ai-thinking-host {
+	margin-bottom: var(--size-4-1);
+}
