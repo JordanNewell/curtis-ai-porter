@@ -15,3 +15,6 @@ demo/demo-vault-2/.obsidian/plugins/
 # Machine-local demo vault state — gitleaks-flagged, never commit
 demo/**/chromium-profile/
 demo/**/plugins/curtis/data.json
+# Obsidian runtime junk in demo vaults
+demo/**/.trash/
+demo/**/.obsidian/themes/
