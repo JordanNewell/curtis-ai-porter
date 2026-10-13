@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Jordan Newell (Curtis AI)
+// SPDX-License-Identifier: BUSL-1.1
+
 // Export-format auto-detection.
 // Mirrors curtis-ai-chat src/import/detect.ts, extended with Grok and
 // Gemini Takeout (the porter's broader provider coverage — see AGENTS.md).

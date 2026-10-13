@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Jordan Newell (Curtis AI)
+// SPDX-License-Identifier: BUSL-1.1
+
 // API JSONL emitter — the OpenAI / Anthropic request shape (and the close
 // cousin Open WebUI-style importers read): one conversation per line,
 // {"messages":[{"role":"user"|"assistant","content":"..."}]}. Only string

@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Jordan Newell (Curtis AI)
+// SPDX-License-Identifier: BUSL-1.1
+
 // Audit receipts — the porter's reporting path to curtis-ai-audit.
 //
 // The porter is a sender in the OM-1 sense: after chats land in the vault it

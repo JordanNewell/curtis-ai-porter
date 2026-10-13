@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Jordan Newell (Curtis AI)
+// SPDX-License-Identifier: BUSL-1.1
+
 // Curtis AI Porter — Obsidian plugin entry.
 //
 // A standalone suite tool: ports foreign AI-chat exports into the vault as

@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Jordan Newell (Curtis AI)
+// SPDX-License-Identifier: BUSL-1.1
+
 // Gemini (Google) Takeout converter.
 //
 // The only official Gemini export is Google Takeout → "My Activity": a JSON

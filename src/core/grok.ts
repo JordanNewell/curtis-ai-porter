@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Jordan Newell (Curtis AI)
+// SPDX-License-Identifier: BUSL-1.1
+
 // Grok (x.ai) export converter.
 //
 // grok.com's data export ships a JSON archive whose `conversations` array

@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Jordan Newell (Curtis AI)
+// SPDX-License-Identifier: BUSL-1.1
+
 // Curtis AI Porter view — the drop-zone workspace inside Obsidian.
 //
 // Drop or pick foreign exports, paste transcripts, review what was found,

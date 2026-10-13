@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Jordan Newell (Curtis AI)
+// SPDX-License-Identifier: BUSL-1.1
+
 // High-level conversion: input files in, .curt + Curtis-markdown out.
 // The one entry point shared by the CLI and the web UI. Pure — no fs, no
 // DOM — so the same code runs in Node and the browser.

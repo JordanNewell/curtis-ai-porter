@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Jordan Newell (Curtis AI)
+// SPDX-License-Identifier: BUSL-1.1
+
 // Curtis markdown transcripts — the vault format.
 //
 // Mirrors the serializer/parser in curtis-ai-chat src/chat/conversation-format.ts

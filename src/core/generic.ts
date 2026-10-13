@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Jordan Newell (Curtis AI)
+// SPDX-License-Identifier: BUSL-1.1
+
 // Generic best-effort importers: plain JSON transcripts and role-headed
 // markdown. Mirrors curtis-ai-chat src/import/generic.ts (kept in sync —
 // see the porter's contract tests), extended here first:

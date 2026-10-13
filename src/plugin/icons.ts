@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Jordan Newell (Curtis AI)
+// SPDX-License-Identifier: BUSL-1.1
+
 // Curtis AI Porter — custom icon registry.
 //
 // The mark IS the porter logo master (Curtis.ai.porter.png) — embedded

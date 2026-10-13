@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Jordan Newell (Curtis AI)
+// SPDX-License-Identifier: BUSL-1.1
+
 // Id generation — shapes are normative in docs/curt-format.md:
 //   conversation: conv_<ms>_<9 base36 chars>   message: msg_<ms>_<6 base36 chars>
 // This module pads the random segment to full width (a bare Math.random slice

@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Jordan Newell (Curtis AI)
+// SPDX-License-Identifier: BUSL-1.1
+
 // .curt — Curtis's branded single-file conversation format.
 //
 // Mirrors curtis-ai-chat src/import/curt-format.ts (minus Obsidian surfaces)

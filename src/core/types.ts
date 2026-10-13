@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Jordan Newell (Curtis AI)
+// SPDX-License-Identifier: BUSL-1.1
+
 // Shared shapes for foreign-format conversion.
 //
 // These types mirror Curtis AI Chat's plugin types (Conversation,

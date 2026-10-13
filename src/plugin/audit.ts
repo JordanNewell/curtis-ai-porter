@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Jordan Newell (Curtis AI)
+// SPDX-License-Identifier: BUSL-1.1
+
 // Plugin-side audit reporting — the porter as a sender.
 //
 // Sender mode: after writeConversions lands chats, fire one

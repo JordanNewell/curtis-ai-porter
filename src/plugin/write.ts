@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Jordan Newell (Curtis AI)
+// SPDX-License-Identifier: BUSL-1.1
+
 // Vault writing — turn converted conversations into vault files.
 //
 // Standalone by design: the porter never imports the Curtis plugin's code.

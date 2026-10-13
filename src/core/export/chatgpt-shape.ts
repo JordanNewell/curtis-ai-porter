@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Jordan Newell (Curtis AI)
+// SPDX-License-Identifier: BUSL-1.1
+
 // ChatGPT-export-shape emitter.
 //
 // Writes Curtis conversations back out as a ChatGPT-export-shaped

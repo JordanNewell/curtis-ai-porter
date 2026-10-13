@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Jordan Newell (Curtis AI)
+// SPDX-License-Identifier: BUSL-1.1
+
 // Export dispatcher: Curtis conversations → other platforms' shapes.
 // Pure string in / string out — no fs, no DOM — so the CLI, the web page and
 // the plugin all reuse it. Import stays one-way additive: nothing here

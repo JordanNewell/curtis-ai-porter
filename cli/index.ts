@@ -1,4 +1,7 @@
 #!/usr/bin/env node
+// Copyright (c) 2026 Jordan Newell (Curtis AI)
+// SPDX-License-Identifier: BUSL-1.1
+
 // curt-porter CLI.
 //
 //   curt-porter convert <file...> [--out <dir>] [--format curt|md|both] [--zip]

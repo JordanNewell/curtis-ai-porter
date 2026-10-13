@@ -51,7 +51,7 @@ async function buildCli() {
 }
 
 async function buildTests() {
-	const entries = ['test/curt.test.ts', 'test/parsers.test.ts', 'test/detect.test.ts', 'test/export.test.ts', 'test/robustness.test.ts', 'test/cli.test.ts', 'test/continuation.test.ts', 'test/stats.test.ts', 'test/verify.test.ts', 'test/curtis-contract.test.ts'];
+	const entries = ['test/curt.test.ts', 'test/parsers.test.ts', 'test/detect.test.ts', 'test/export.test.ts', 'test/robustness.test.ts', 'test/cli.test.ts', 'test/continuation.test.ts', 'test/stats.test.ts', 'test/verify.test.ts', 'test/curtis-contract.test.ts', 'test/smoke.test.ts', 'test/artifacts.test.ts'];
 	// The live-repo contract run only exists when the plugin is checked out
 	// next door — the vendored snapshot keeps `npm test` self-contained.
 	const liveEntry = path.join(root, 'test/curtis-contract-live.test.ts');
@@ -83,6 +83,9 @@ async function buildPlugin() {
 		platform: 'browser',
 		target: 'es2022',
 		external: ['obsidian'],
+		banner: {
+			js: '// Curtis AI Porter — Copyright (c) 2026 Jordan Newell (Curtis AI)\n// SPDX-License-Identifier: BUSL-1.1',
+		},
 		outfile: 'main.js',
 		sourcemap: false,
 	});

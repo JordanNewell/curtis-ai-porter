@@ -9,7 +9,8 @@
 	"main": "main.js",
 	"scripts": {
 		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs",
-		"test": "node esbuild.config.mjs tests && node --test \"dist-test/*.test.js\"",
+		"test": "npm run build && node esbuild.config.mjs tests && node --test \"dist-test/*.test.js\"",
+		"smoke": "node esbuild.config.mjs tests && node --test dist-test/smoke.test.js dist-test/artifacts.test.js",
 		"start": "node dist/cli.mjs serve",
 		"porter": "node dist/cli.mjs"
 	},
@@ -26,7 +27,7 @@
 		"markdown",
 		"local-first"
 	],
-	"author": "Jordan Newell",
+	"author": "Jordan Newell (Curtis AI)",
 	"license": "BUSL-1.1",
 	"engines": {
 		"node": ">=18"
