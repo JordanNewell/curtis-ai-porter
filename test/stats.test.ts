@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Jordan Newell (Curtis AI)
+// SPDX-License-Identifier: BUSL-1.1
+
 // Stats: aggregation over conversations (counts, words, tokens, cost,
 // timeline, provider/model/month breakdowns, largest) and the plain-text
 // renderer — including hostile exports, where NaN/Infinity must never reach

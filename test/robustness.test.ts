@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Jordan Newell (Curtis AI)
+// SPDX-License-Identifier: BUSL-1.1
+
 // Adversarial-input robustness: filename sanitization (long titles, Windows
 // reserved names, crafted ids), run-wide output-name uniqueness, NaN
 // timestamp guards, UTF-16 export decoding, and the zip decompression

@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Jordan Newell (Curtis AI)
+// SPDX-License-Identifier: BUSL-1.1
+
 // The contract assertions, parameterized over a Curtis parser pair.
 // Run once against the vendored reference snapshot (always), and once
 // against the live plugin repo when it's checked out next door — two

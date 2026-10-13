@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Jordan Newell (Curtis AI)
+// SPDX-License-Identifier: BUSL-1.1
+
 // .curt serialization contract: magic/version validation, round-trip
 // fidelity (tokens, tool calls, images survive verbatim), strict rejection.
 

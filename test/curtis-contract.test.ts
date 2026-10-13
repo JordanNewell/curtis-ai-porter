@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Jordan Newell (Curtis AI)
+// SPDX-License-Identifier: BUSL-1.1
+
 // Contract test — vendored reference snapshot (always runs, no sibling repo
 // needed). The porter's output must be accepted by the plugin's parsers; the
 // snapshots in test/curtis-reference/ are verbatim copies of those parsers.

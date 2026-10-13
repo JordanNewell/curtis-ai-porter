@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Jordan Newell (Curtis AI)
+// SPDX-License-Identifier: BUSL-1.1
+
 // Audit receipt encoding — byte-compatibility with curtis-ai-audit's OM-1
 // parser (vendored encoder) and the receipt payload shape.
 

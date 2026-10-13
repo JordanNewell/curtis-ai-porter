@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Jordan Newell (Curtis AI)
+// SPDX-License-Identifier: BUSL-1.1
+
 // CLI end-to-end: the built dist/cli.mjs spawned against hostile argument
 // shapes and unwritable output paths — dangling flag values, blocked write
 // targets, a busy serve port. Skipped when dist/ hasn't been built; run

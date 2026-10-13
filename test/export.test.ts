@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Jordan Newell (Curtis AI)
+// SPDX-License-Identifier: BUSL-1.1
+
 // Export direction: the ChatGPT-shape round-trip self-test (through the
 // porter's own importer), API JSONL fidelity, continuation-pack budget
 // behavior, and the dispatcher's file layout.

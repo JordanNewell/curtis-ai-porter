@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Jordan Newell (Curtis AI)
+// SPDX-License-Identifier: BUSL-1.1
+
 // Continuation pack: target preambles, the provenance line, budget
 // accounting via buildContinuation() info, and the back-compat delegate.
 // Output-string behavior itself (budget walk, anchor, marker) is also

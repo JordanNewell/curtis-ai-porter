@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Jordan Newell (Curtis AI)
+// SPDX-License-Identifier: BUSL-1.1
+
 // Minimal 'obsidian' stand-in so the contract tests can run the REAL Curtis
 // plugin parsers (chat/conversation-format.ts, import/curt-format.ts) under
 // node:test. Only the names those modules use at runtime are implemented;
