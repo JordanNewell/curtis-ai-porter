@@ -1,0 +1,39 @@
+# Runs the full suite (build + 165 unit/smoke/artifact/contract tests) on
+# every push and PR. Windows is in the matrix because the CLI's serve mode,
+# path handling and line endings are exactly the things that break silently
+# on a Windows-only dev box — this repo is developed on one.
+#
+# The live-repo contract suite is absent here by design: the sibling plugin
+# repo isn't checked out in CI, so esbuild falls back to the vendored
+# snapshot (that fallback is itself exercised on every run).
+
+name: Test
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node: [20, 24]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm test
