@@ -7,8 +7,15 @@ Everything here is local: fixtures are synthetic exports, the vault is throwaway
 ```
 npm install
 npm run build                  # porter: dist/cli.mjs + dist/porter.html
-cd ../curtis-ai-chat && npm run build   # plugin: main.js (if not built recently)
-cd ../curtis-ai-porter
+```
+
+The vault also wants the Curtis plugin build. Check out the Curtis plugin repo
+as a sibling of this repo and build it there (`npm run build` — produces
+`main.js`); `demo/sync-vault.mjs` finds it under either name (`../curtis-ai-chat`
+or `../curtis`), or point it at the checkout with `CURTIS_PLUGIN_REPO`. Then,
+back in this repo:
+
+```
 node demo/make-fixtures.mjs    # synthetic ChatGPT/Claude/DeepSeek/bulk exports
 node demo/sync-vault.mjs       # installs the plugin build into demo/demo-vault-2
 ```

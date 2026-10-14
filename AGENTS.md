@@ -4,7 +4,7 @@ Standalone converter (CLI + single-file web page + Obsidian plugin), TypeScript 
 
 ## Build & verify
 
-- `npm run build` — type-checks (`tsc -noEmit -skipLibCheck`) then bundles `dist/cli.mjs` + `dist/porter.html`. Run before declaring any task done.
+- `npm run build` — type-checks (`tsc -noEmit -skipLibCheck`) then bundles `dist/cli.mjs`, `dist/porter.html`, and the plugin `main.js`. Run before declaring any task done.
 - `npm test` — bundles tests then runs `node --test`. Zero failures before commit.
 - `npx eslint --config eslint.review-check.config.mjs src/` — the Obsidian review bot's static checks (eslint-plugin-obsidianmd + unbound-method), run locally. Zero findings before a release.
 - `npm start` — serve the web page at localhost:7777.

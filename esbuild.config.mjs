@@ -51,11 +51,17 @@ async function buildCli() {
 }
 
 async function buildTests() {
-	const entries = ['test/curt.test.ts', 'test/parsers.test.ts', 'test/detect.test.ts', 'test/export.test.ts', 'test/robustness.test.ts', 'test/cli.test.ts', 'test/continuation.test.ts', 'test/stats.test.ts', 'test/verify.test.ts', 'test/curtis-contract.test.ts', 'test/smoke.test.ts', 'test/artifacts.test.ts'];
-	// The live-repo contract run only exists when the plugin is checked out
-	// next door — the vendored snapshot keeps `npm test` self-contained.
-	const liveEntry = path.join(root, 'test/curtis-contract-live.test.ts');
-	if (existsSync(path.join(root, '../curtis-ai-chat/src/import/curt.ts'))) entries.push(path.relative(root, liveEntry));
+	const entries = ['test/curt.test.ts', 'test/parsers.test.ts', 'test/detect.test.ts', 'test/export.test.ts', 'test/robustness.test.ts', 'test/cli.test.ts', 'test/continuation.test.ts', 'test/stats.test.ts', 'test/verify.test.ts', 'test/audit.test.ts', 'test/curtis-contract.test.ts', 'test/smoke.test.ts', 'test/artifacts.test.ts'];
+	// The live-repo contract run only exists when the plugin repo is checked
+	// out next door — under its GitHub name (curtis-ai-chat), a local rename
+	// (curtis), or pointed at explicitly via CURTIS_PLUGIN_REPO. The vendored
+	// snapshot keeps `npm test` self-contained without it. The live imports
+	// go through the `curtis-live` alias so the entry is name-agnostic.
+	const curtisSibling = [process.env.CURTIS_PLUGIN_REPO, '../curtis-ai-chat', '../curtis']
+		.filter(Boolean)
+		.map((p) => path.resolve(root, p))
+		.find((p) => existsSync(path.join(p, 'src/import/curt.ts')));
+	if (curtisSibling) entries.push(path.relative(root, path.join(root, 'test/curtis-contract-live.test.ts')));
 	rmSync(path.join(root, 'dist-test'), { recursive: true, force: true });
 	mkdirSync(path.join(root, 'dist-test'), { recursive: true });
 	await build({
@@ -67,7 +73,10 @@ async function buildTests() {
 		outdir: 'dist-test',
 		external: ['fflate', 'yaml'],
 		sourcemap: false,
-		alias: { obsidian: path.join(root, 'test/obsidian-stub.ts') },
+		alias: {
+			obsidian: path.join(root, 'test/obsidian-stub.ts'),
+			...(curtisSibling ? { 'curtis-live': curtisSibling } : {}),
+		},
 	});
 }
 

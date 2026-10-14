@@ -1,9 +1,22 @@
 // Mock the porter view at full panel height in both states: empty (hero
 // centered) and with results (compact hero, scrolling list, pinned actions).
 const { createRequire } = require('node:module');
-const req = createRequire('E:/dev/projects/curtis-ai-chat/package.json');
+const path = require('path');
+const { readFileSync, existsSync } = require('fs');
+
+// playwright-core is a devDependency of the sibling Curtis plugin repo —
+// found under CURTIS_PLUGIN_REPO, ../curtis-ai-chat or ../curtis.
+const root = path.resolve(__dirname, '..');
+const pluginRepo = [process.env.CURTIS_PLUGIN_REPO, 'curtis-ai-chat', 'curtis']
+	.filter(Boolean)
+	.map((p) => path.resolve(root, '..', p))
+	.find((p) => existsSync(path.join(p, 'package.json')));
+if (!pluginRepo) {
+	console.error('Curtis plugin repo not found next door — set CURTIS_PLUGIN_REPO to its checkout.');
+	process.exit(1);
+}
+const req = createRequire(path.join(pluginRepo, 'package.json'));
 const { chromium } = req('playwright-core');
-const { readFileSync } = require('fs');
 
 const css = readFileSync('styles.css', 'utf8');
 const icon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M22 0 L6.2 0 L2 3.2 L2 15.8 L6.2 19 L9.9 19 L11.4 23 L16.9 19 L22 19 L22 12 L9.2 12 L9.2 5.75 L16 5.75 L16 7.4 L22 7.4 Z"/><path d="M23 8.2 L18.6 8.2 L18.6 7.6 L15.6 8.9 L18.6 10.2 L18.6 9.6 L23 9.6 Z"/><path d="M17 10 L20.4 10 L20.4 9.4 L23.4 10.7 L20.4 12 L20.4 11.4 L17 11.4 Z"/></svg>`;

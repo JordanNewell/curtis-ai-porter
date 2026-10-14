@@ -1,8 +1,10 @@
 // Install the Curtis + Curtis AI Porter plugin builds and Obsidian config into
 // demo/demo-vault-2.
 //   node demo/sync-vault.mjs
-// Expects curtis-ai-chat checked out at ../curtis-ai-chat (with a fresh
-// `npm run build`) and this repo's own main.js built (`npm run build` here).
+// Expects the Curtis plugin repo checked out next door (with a fresh
+// `npm run build` there) and this repo's own main.js built (`npm run build`
+// here). The plugin repo is looked up under CURTIS_PLUGIN_REPO, ../curtis-ai-chat
+// or ../curtis — whichever exists.
 
 import { copyFileSync, mkdirSync, writeFileSync, existsSync } from 'node:fs';
 import path from 'node:path';
@@ -10,7 +12,14 @@ import { fileURLToPath } from 'node:url';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.dirname(here);
-const curtis = path.join(root, '..', 'curtis-ai-chat');
+const curtis = [process.env.CURTIS_PLUGIN_REPO, '../curtis-ai-chat', '../curtis']
+	.filter(Boolean)
+	.map((p) => path.resolve(root, p))
+	.find((p) => existsSync(path.join(p, 'package.json')));
+if (!curtis) {
+	console.error('Curtis plugin repo not found next door — set CURTIS_PLUGIN_REPO to its checkout.');
+	process.exit(1);
+}
 const vault = path.join(here, 'demo-vault-2');
 
 const plugins = [

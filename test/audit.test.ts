@@ -67,10 +67,13 @@ test('encodeAuditBlock emits the OM-1 shape curtis-ai-audit parses', () => {
 	const lines = block.split('\n');
 	assert.ok(lines[0].startsWith('<!-- messenger: {'));
 	assert.ok(lines[0].endsWith('-->'));
-	assert.ok(lines[lines.length - 2] === '<!-- /messenger -->');
+	// block ends "\n\n": the marker line, then two empty trailing entries
+	assert.ok(lines[lines.length - 3] === '<!-- /messenger -->');
+	assert.ok(lines[lines.length - 1] === '');
 	assert.ok(block.endsWith('\n\n'));
 
-	const header = JSON.parse(lines[0].slice('<!-- messenger: '.length, -' -->'.length));
+	// header line is "<!-- messenger: <envelope> -->" — 4-char close
+	const header = JSON.parse(lines[0].slice('<!-- messenger: '.length, -4));
 	assert.equal(header.from, 'curtis-ai-porter');
 	assert.equal(header.to, 'audit');
 	assert.equal(header.replyTo, null);
@@ -78,5 +81,5 @@ test('encodeAuditBlock emits the OM-1 shape curtis-ai-audit parses', () => {
 
 	// stable id in the envelope — re-runs dedupe instead of duplicating
 	const again = encodeAuditBlock(chatMessageId(CONV.id), payload);
-	assert.equal(JSON.parse(again.split('\n')[0].slice(18, -4)).id, header.id);
+	assert.equal(JSON.parse(again.split('\n')[0].slice('<!-- messenger: '.length, -4)).id, header.id);
 });

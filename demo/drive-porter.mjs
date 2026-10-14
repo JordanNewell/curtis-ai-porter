@@ -4,17 +4,27 @@
 // through the real UI pipeline, then drags the two fixture files in via the
 // file input, and saves screenshots to demo/_shots/.
 
-import { mkdirSync, writeFileSync, readFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync, readFileSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path2 from 'node:path';
 import { createRequire } from 'node:module';
 
-// playwright-core is a devDependency of the sibling plugin repo.
-const requireFromPlugin = createRequire('E:/dev/projects/curtis-ai-chat/package.json');
-const { chromium } = requireFromPlugin('playwright-core');
-
 const here = path2.dirname(fileURLToPath(import.meta.url));
 const root = path2.dirname(here);
+
+// playwright-core is a devDependency of the sibling Curtis plugin repo —
+// found under CURTIS_PLUGIN_REPO, ../curtis-ai-chat or ../curtis.
+const pluginRepo = [process.env.CURTIS_PLUGIN_REPO, 'curtis-ai-chat', 'curtis']
+	.filter(Boolean)
+	.map((p) => path2.resolve(root, '..', p))
+	.find((p) => existsSync(path2.join(p, 'package.json')));
+if (!pluginRepo) {
+	console.error('Curtis plugin repo not found next door — set CURTIS_PLUGIN_REPO to its checkout.');
+	process.exit(1);
+}
+const requireFromPlugin = createRequire(path2.join(pluginRepo, 'package.json'));
+const { chromium } = requireFromPlugin('playwright-core');
+
 const shots = path2.join(here, '_shots');
 mkdirSync(shots, { recursive: true });
 
