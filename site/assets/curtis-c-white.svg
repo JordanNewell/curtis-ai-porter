@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Curtis mark — C">
-  <!-- Curtis mark: the plain C, dot retired 2026-10-11 (the C-dot collides with another SaaS mark).
-       White coin behind the C so it holds up on dark browser tabs. -->
-  <circle cx="128" cy="128" r="126" fill="#FFFFFF"/>
-  <path d="M 200.1 77.5 A 88 88 0 1 0 200.1 178.5"
-        fill="none" stroke="#0E7A45" stroke-width="34" stroke-linecap="round"/>
-</svg>

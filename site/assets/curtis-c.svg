@@ -1,23 +1,18 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 540" width="540" height="540" role="img" aria-label="Logo">
-  <title>Modern C Logo</title>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 540" role="img" aria-label="Curtis mark">
+  <!-- Canonical Curtis mark, 2026-10 rebrand (source: ~/Downloads/modern-logo.svg,
+       recolored to the mood board's --live green). Stripes are CUTOUTS (mask),
+       not white fills, so the transparent PNG renders on any theme surface.
+       The 24px ribbon adaptation lives in src/icons.ts (thickened ring/stripes,
+       currentColor) — keep the geometry in sync when editing either. -->
   <defs>
-    <path id="c-mark" d="M400.8 139.2 A185 185 0 1 0 400.8 400.8 L344.2 344.2 A105 105 0 1 1 344.2 195.8 Z"/>
-    <clipPath id="c-clip">
-      <use href="#c-mark"/>
-    </clipPath>
+    <mask id="curtis-mark-stripes">
+      <rect width="540" height="540" fill="#ffffff"/>
+      <rect x="0" y="144" width="540" height="8" fill="#000000"/>
+      <rect x="0" y="192" width="540" height="8" fill="#000000"/>
+      <rect x="0" y="340" width="540" height="8" fill="#000000"/>
+      <rect x="0" y="388" width="540" height="8" fill="#000000"/>
+    </mask>
   </defs>
-
-  <!-- Outer ring -->
-  <circle cx="270" cy="270" r="258" fill="none" stroke="#3E6746" stroke-width="10"/>
-
-  <!-- C mark -->
-  <use href="#c-mark" fill="#3E6746"/>
-
-  <!-- Stripes: four evenly-weighted cuts, symmetric about the centerline -->
-  <g fill="#FFFFFF" clip-path="url(#c-clip)">
-    <rect x="60" y="144" width="420" height="8"/>
-    <rect x="60" y="192" width="420" height="8"/>
-    <rect x="60" y="340" width="420" height="8"/>
-    <rect x="60" y="388" width="420" height="8"/>
-  </g>
+  <circle cx="270" cy="270" r="258" fill="none" stroke="#1E7A46" stroke-width="10"/>
+  <path d="M400.8 139.2 A185 185 0 1 0 400.8 400.8 L344.2 344.2 A105 105 0 1 1 344.2 195.8 Z" fill="#1E7A46" mask="url(#curtis-mark-stripes)"/>
 </svg>
