@@ -1,7 +1,7 @@
 # Curtis AI Porter
 
 <p align="center">
-	<img src="assets/porter-logo.png" alt="Curtis AI Porter" width="140" />
+	<img src="site/assets/curtis-c.svg" alt="Curtis" width="100" />
 </p>
 
 Carry your AI chats anywhere. Port conversations out of ChatGPT, Claude, Grok, Gemini, DeepSeek — any AI tool that can export or copy — into **`.curt` files** (Curtis's portable conversation format) and **Obsidian-ready markdown**. Curtis chats export back out, too: continuation packs, ChatGPT-shape JSON, or API JSONL.
