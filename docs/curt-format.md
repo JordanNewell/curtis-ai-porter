@@ -73,6 +73,38 @@ writers emit them only when set, and files without them parse identically
 under older readers. Writers that must preserve everything else write
 `.curt`.
 
+## Fidelity
+
+What each import path carries into the model. Native files (`.curt`, Curtis
+markdown) round-trip the full conversation; every foreign source is lossy by
+construction — the gaps below are inherent to what the source export actually
+contains, not implementation shortcuts. The shared importers (this repo and
+Curtis AI Chat) behave identically; the contract suites pin it.
+
+| Source | Carries | Not carried (why) |
+| --- | --- | --- |
+| `.curt`, Curtis markdown | everything in the model above | — (unknown fields survive `.curt` only) |
+| ChatGPT export | title; conversation + per-message timestamps (second precision); `model` on assistant messages (`model_slug`) | system/tool nodes (platform prompts and execution output — not part of the visible conversation, and tool results would orphan without their `tool_calls`); images (media nodes are pointers to OpenAI's CDN, not portable data); branch siblings (regenerations/edits collapse into the chronological chain) |
+| Claude export | title; conversation + per-message timestamps; message text (top-level `text` and `text` content blocks) | attachments and non-text content blocks (tool-use blocks carry no text); `model` (the export has none) |
+| Grok archive | title; conversation + per-message timestamps (tolerant across seconds/ms/ISO); roles across naming drift | system messages (platform prompts); attachments |
+| Gemini Takeout | prompts and answers — both sides required, prompts-only exports yield nothing; per-item timestamps; conversations inferred by splitting at >3 h gaps | anything Takeout doesn't include in the item body |
+| Generic JSON / pasted transcript | roles + content | timestamps and `model` (such sources rarely carry them) |
+
+What **no** foreign path carries, only `.curt`: ids (foreign imports get fresh
+ones per the Identifier rules), `cost`, `tokens`, `images`, `attachedNotes`,
+`tool_calls` / `tool_call_id` / `tool_error`, `memoriesUsedIds`, and the
+agent / skill / swarm fields (`agentId`, `skillIds`, `role`, `leaderId`).
+Those fields exist in no competitor's export — they are Curtis-native data,
+and `.curt` is the only envelope that preserves them.
+
+On the way out: `.curt` emits the full model; Curtis markdown emits every
+known key (unknown fields are a `.curt`-only guarantee); the foreign emitters
+are projections by design — ChatGPT-shape JSON carries user/assistant turns,
+whole-second timestamps and `model_slug`, because that is all its importers
+read; API JSONL keeps a leading system message plus user/assistant string
+content, so the output is safe to re-send to a provider; the continuation
+pack is a transcript projection trimmed to a token budget.
+
 ## Identifiers
 
 ```

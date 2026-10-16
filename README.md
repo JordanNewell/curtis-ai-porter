@@ -122,6 +122,21 @@ Details and edge cases: [docs/PORTING.md](docs/PORTING.md).
 
 One conversation per file, JSON with a magic field and a version. Chosen over markdown for portability: no escaping edge cases, and base64 images or tool-call metadata survive byte-perfect. Both formats are owned by [docs/curt-format.md](docs/curt-format.md) — the normative spec for `.curt` and Curtis markdown (validation, escaping, ids, canonical form).
 
+### What survives the port
+
+`.curt` is the full-fidelity envelope; every foreign source is lossy by nature — the gaps are what those exports actually contain, not what Porter drops.
+
+| Path in | You get | You don't |
+|---|---|---|
+| `.curt` / Curtis markdown | everything — lossless round-trip | — |
+| ChatGPT export | title, timestamps (sec precision), model per assistant turn | system/tool turns, images (CDN pointers, not data), regenerations collapse to one chain |
+| Claude export | title, timestamps, message text | attachments, tool-use blocks, model (export has none) |
+| Grok archive | title, timestamps, roles | system messages, attachments |
+| Gemini Takeout | prompts + answers (both required), timestamps, chats split at 3 h gaps | anything Takeout leaves out |
+| paste / generic JSON | roles + content | timestamps, model |
+
+Curtis-native data — token counts, cost, images, tool calls, agent/skill/swarm linkage, memory references — exists in **no** competitor's export. Only `.curt` carries it out. Full matrix: [docs/curt-format.md → Fidelity](docs/curt-format.md).
+
 ## Development
 
 ```

@@ -386,6 +386,17 @@ cd curtis-ai-porter &amp;&amp; npm install &amp;&amp; npm run build
     "messages": [ { "id": "msg_…", "role": "user", "content": "…", "timestamp": 1791000000000 } ]
   }
 }</code></pre>
+		<p class="lead" style="margin-block-start:18px;">The sample only shows the floor. A <b>.curt</b> file carries everything — including the data no competitor's export has:</p>
+		<div class="flow" role="img" aria-label="What a .curt file carries: images, tool calls, token counts and cost, per-turn model, agent and skill linkage, memory references — plus text, roles and timestamps.">
+			<span class="node hot">text · roles · timestamps</span>
+			<span class="node">images</span>
+			<span class="node">tool calls</span>
+			<span class="node">tokens + cost</span>
+			<span class="node">per-turn model</span>
+			<span class="node">agents · skills</span>
+			<span class="node">memory refs</span>
+		</div>
+		<p style="margin-block-start:14px;">Foreign exports carry only a slice — ChatGPT gives you text, timestamps and the model, a paste gives you text alone. Porter never invents the rest; <b>.curt</b> is the only format that preserves it. The full fidelity matrix lives in the <a href="https://github.com/JordanNewell/curtis-ai-porter/blob/master/docs/curt-format.md#fidelity">format spec</a>.</p>
 	</section>
 
 	<section aria-label="Local-first">
