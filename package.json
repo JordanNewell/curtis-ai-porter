@@ -33,6 +33,7 @@
 		"node": ">=18"
 	},
 	"dependencies": {
+		"curt-format": "^1.2.0",
 		"fflate": "0.8.3",
 		"yaml": "2.9.1"
 	},

@@ -3,29 +3,35 @@
 
 // .curt — Curtis's branded single-file conversation format.
 //
-// Mirrors curtis-ai-chat src/import/curt-format.ts (minus Obsidian surfaces)
-// — since plugin v2.0.1 the serialize/parse contract lives there, split from
-// the Obsidian I/O layer in src/import/curt.ts. One .curt file = one
-// conversation, serialized as JSON with a magic field. JSON (rather than the
-// markdown+marker layout) because a portable file must be byte-robust: no
-// marker-escaping edge cases, and base64 images / tool calls survive
-// verbatim. Parsing validates strictly — a hand-corrupted file is reported,
-// not guessed.
+// The format rules (envelope, magic/version check, per-message guard,
+// round-trip preservation, BOM tolerance) live in the canonical `curt-format`
+// npm package (dot_curt); this module is a thin adapter that keeps the
+// porter's public surface: serializeCurt's optional
+// "curtis-ai-porter@<version>" generator stamp and sanitizeFilename, which
+// are app-level conveniences, not format rules.
+//
+// Byte-identity contract (verify.ts): a .curt body written by serializeCurt
+// re-serializes to identical bytes, because curt-format's serializeCurt
+// builds the envelope in the same key order (curt, version, conversation,
+// generator last) with the same tab-indented JSON.stringify. The pinned
+// oracle in test/curtis-reference/parse-curt.ts guards this after the flip.
 //
 // Exports also stamp a `generator` field naming the app and version that
 // wrote the file — provenance only. Readers ignore it entirely: first-party
 // files written before the field existed and third-party writers without it
 // import identically.
 
-import type { Conversation, ConversationMessage } from './types';
+import {
+	parseCurt as parseCurtFile,
+	serializeCurt as serializeCurtFile,
+} from 'curt-format';
+import type { CurtConversation } from 'curt-format';
+import type { Conversation } from './types';
 
-const CURT_MAGIC = 'curtis-conversation';
-const CURT_VERSION = 1;
-
-export const CURT_FORMAT = { magic: CURT_MAGIC, version: CURT_VERSION };
+export const CURT_FORMAT = { magic: 'curtis-conversation' as const, version: 1 };
 
 export interface CurtFile {
-	curt: typeof CURT_MAGIC;
+	curt: 'curtis-conversation';
 	version: number;
 	/**
 	 * Provenance: which app and version produced the file, formatted as
@@ -36,17 +42,6 @@ export interface CurtFile {
 	 */
 	generator?: string;
 	conversation: Conversation;
-}
-
-function isMessage(v: unknown): v is ConversationMessage {
-	if (!v || typeof v !== 'object') return false;
-	const m = v as Record<string, unknown>;
-	return (
-		typeof m.id === 'string' &&
-		(m.role === 'user' || m.role === 'assistant' || m.role === 'system' || m.role === 'tool') &&
-		typeof m.content === 'string' &&
-		typeof m.timestamp === 'number'
-	);
 }
 
 /**
@@ -66,38 +61,17 @@ export function serializeCurt(conv: Conversation, generatorVersion?: string): st
  * output verifies canonical.
  */
 export function serializeCurtAs(conv: Conversation, generator?: string): string {
-	const file: CurtFile = { curt: CURT_MAGIC, version: CURT_VERSION, conversation: conv };
-	if (generator) file.generator = generator;
-	return JSON.stringify(file, null, '\t');
+	return serializeCurtFile(conv as unknown as CurtConversation, generator);
 }
 
 /**
  * Parse a .curt body. Returns null when the magic/version/shape doesn't
  * validate — callers report the file as failed rather than importing a
- * half-parsed conversation.
+ * half-parsed conversation. Delegates to curt-format, which also strips a
+ * leading UTF-8 BOM per spec 1.1.0.
  */
 export function parseCurt(raw: string): Conversation | null {
-	let data: unknown;
-	try {
-		data = JSON.parse(raw);
-	} catch {
-		return null;
-	}
-	const f = data as Partial<CurtFile>;
-	if (!f || f.curt !== CURT_MAGIC || f.version !== CURT_VERSION) return null;
-	const conv = f.conversation as Partial<Conversation> | undefined;
-	if (
-		!conv ||
-		typeof conv.id !== 'string' ||
-		typeof conv.title !== 'string' ||
-		typeof conv.createdAt !== 'number' ||
-		typeof conv.updatedAt !== 'number' ||
-		!Array.isArray(conv.messages) ||
-		!conv.messages.every(isMessage)
-	) {
-		return null;
-	}
-	return conv as Conversation;
+	return parseCurtFile(raw) as Conversation | null;
 }
 
 /**
