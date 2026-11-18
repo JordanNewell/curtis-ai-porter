@@ -161,7 +161,7 @@ v0.2.1 — plugin review fixes: requires Obsidian 1.7.2+; settings appear in Obs
 
 v0.2.0 — working imports: ChatGPT, Claude, Grok, Gemini Takeout, `.curt`, Curtis markdown, Curtis bulk-export zip, generic JSON, generic markdown/paste — via CLI, web UI, or the Obsidian plugin. New: the export direction — continuation packs (attach a transcript to a live ChatGPT/Claude/Gemini chat and continue), ChatGPT-shape `conversations.json`, and API JSONL. New in the CLI: `verify` (prove files round-trip) and `stats` (aggregate a history), and `--target` continuation packs. Not yet: image export from foreign formats; bulk import into ChatGPT/Claude/Gemini — no platform offers a write API, which is exactly what the continuation pack works around. DeepSeek still has no bulk export; the paste path covers it.
 
-Part of the [Curtis](https://github.com/JordanNewell/curtis-ai-chat) family.
+Part of the [Curtis](https://github.com/curtis-ai-tech/curtis-ai-chat) family.
 
 ## License
 

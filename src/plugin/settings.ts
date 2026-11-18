@@ -129,7 +129,7 @@ export class PorterSettingTab extends PluginSettingTab {
 
 		const author = wrap.createEl('p', { cls: 'porter-about-desc' });
 		author.appendText('By ');
-		const link = author.createEl('a', { href: 'https://github.com/JordanNewell/curtis-ai-porter' });
+		const link = author.createEl('a', { href: 'https://github.com/curtis-ai-tech/curtis-ai-porter' });
 		link.setText('Jordan Newell');
 
 		// Author brand mark, pinned to the footer's bottom-right corner (CSS).

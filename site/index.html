@@ -193,7 +193,7 @@
 			<a href="#plugin">Obsidian plugin</a>
 			<a href="#curtis">Curtis AI Chat</a>
 			<a href="#format">.curt format</a>
-			<a href="https://github.com/JordanNewell/curtis-ai-porter">GitHub</a>
+			<a href="https://github.com/curtis-ai-tech/curtis-ai-porter">GitHub</a>
 		</div>
 	</nav>
 
@@ -275,7 +275,7 @@
 			</tbody>
 		</table>
 		</div>
-		<p class="lead" style="margin-block:14px 0; font-size:13.5px;">Edge cases and details: <a href="https://github.com/JordanNewell/curtis-ai-porter/blob/master/docs/PORTING.md">docs/PORTING.md</a>.</p>
+		<p class="lead" style="margin-block:14px 0; font-size:13.5px;">Edge cases and details: <a href="https://github.com/curtis-ai-tech/curtis-ai-porter/blob/master/docs/PORTING.md">docs/PORTING.md</a>.</p>
 	</section>
 
 	<section aria-label="Outputs">
@@ -338,7 +338,7 @@
 		</div>
 		<div class="family-cta">
 			<a class="btn primary" href="https://jordannewell.github.io/curtis-ai-chat/" rel="noopener">Curtis AI Chat website</a>
-			<a class="btn ghost" href="https://github.com/JordanNewell/curtis-ai-chat" rel="noopener">GitHub ↗</a>
+			<a class="btn ghost" href="https://github.com/curtis-ai-tech/curtis-ai-chat" rel="noopener">GitHub ↗</a>
 		</div>
 		<p class="family-note"><span class="dot">●</span> Drop a ported transcript into <code>AI/Conversations/</code> and it appears in Curtis history immediately — the shared format is the whole trick.</p>
 	</section>
@@ -348,7 +348,7 @@
 		<h2>Script it</h2>
 		<p class="lead">The same converter as a Node CLI, for bulk runs and pipelines. Build from source:</p>
 <pre class="term"><code><span class="c"># once</span>
-git clone https://github.com/JordanNewell/curtis-ai-porter
+git clone https://github.com/curtis-ai-tech/curtis-ai-porter
 cd curtis-ai-porter &amp;&amp; npm install &amp;&amp; npm run build
 
 <span class="c"># in</span>
@@ -367,7 +367,7 @@ cd curtis-ai-porter &amp;&amp; npm install &amp;&amp; npm run build
 		<span class="section-tag">obsidian</span>
 		<h2>The Obsidian plugin</h2>
 		<p class="lead">The repo also ships as an Obsidian plugin: a ribbon icon, a <b>“Port chats into this vault…”</b> command, and right-click <b>“Port into vault (Curtis AI Porter)”</b> on <code>.zip</code> / <code>.json</code> / <code>.curt</code> / <code>.md</code> / <code>.txt</code> files in the explorer. Ported transcripts are written straight into the vault (output folder is a setting, with an optional <code>.curt</code> copy alongside).</p>
-		<p class="lead">Standalone — it works without Curtis AI Chat installed. When both are present, the shared format means ported chats appear in Curtis history immediately. Grab <code>main.js</code> + <code>manifest.json</code> from the <a href="https://github.com/JordanNewell/curtis-ai-porter/releases">latest release</a>.</p>
+		<p class="lead">Standalone — it works without Curtis AI Chat installed. When both are present, the shared format means ported chats appear in Curtis history immediately. Grab <code>main.js</code> + <code>manifest.json</code> from the <a href="https://github.com/curtis-ai-tech/curtis-ai-porter/releases">latest release</a>.</p>
 	</section>
 
 	<section id="format" aria-label="The .curt format">
@@ -397,7 +397,7 @@ cd curtis-ai-porter &amp;&amp; npm install &amp;&amp; npm run build
 			<span class="node">agents · skills</span>
 			<span class="node">memory refs</span>
 		</div>
-		<p style="margin-block-start:14px;">Foreign exports carry only a slice — ChatGPT gives you text, timestamps and the model, a paste gives you text alone. Porter never invents the rest; <b>.curt</b> is the only format that preserves it. The full fidelity matrix lives in the <a href="https://github.com/JordanNewell/curtis-ai-porter/blob/master/docs/curt-format.md#fidelity">format spec</a>.</p>
+		<p style="margin-block-start:14px;">Foreign exports carry only a slice — ChatGPT gives you text, timestamps and the model, a paste gives you text alone. Porter never invents the rest; <b>.curt</b> is the only format that preserves it. The full fidelity matrix lives in the <a href="https://github.com/curtis-ai-tech/curtis-ai-porter/blob/master/docs/curt-format.md#fidelity">format spec</a>.</p>
 	</section>
 
 	<section aria-label="Local-first">
@@ -408,8 +408,8 @@ cd curtis-ai-porter &amp;&amp; npm install &amp;&amp; npm run build
 	</section>
 
 	<footer>
-		<p>Curtis AI Porter v1.0.0 · BUSL-1.1 · part of the <a href="https://github.com/JordanNewell/curtis-ai-chat">Curtis</a> family.</p>
-		<p><a href="https://github.com/JordanNewell/curtis-ai-porter">Porter on GitHub</a> · <a href="https://jordannewell.github.io/curtis-ai-chat/" rel="noopener">Curtis AI Chat website</a> · <a href="https://github.com/JordanNewell/curtis-ai-chat" rel="noopener">Curtis on GitHub</a> · <a href="porter.html">Open the web app</a></p>
+		<p>Curtis AI Porter v1.0.0 · BUSL-1.1 · part of the <a href="https://github.com/curtis-ai-tech/curtis-ai-chat">Curtis</a> family.</p>
+		<p><a href="https://github.com/curtis-ai-tech/curtis-ai-porter">Porter on GitHub</a> · <a href="https://jordannewell.github.io/curtis-ai-chat/" rel="noopener">Curtis AI Chat website</a> · <a href="https://github.com/curtis-ai-tech/curtis-ai-chat" rel="noopener">Curtis on GitHub</a> · <a href="porter.html">Open the web app</a></p>
 	</footer>
 
 </div>
